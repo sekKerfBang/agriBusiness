@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Commandes - Dashboard{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="section-title">Gestion des commandes</h1>
+
+    <div class="table-responsive">
+      <table class="table table-dashboard text-white">
+        <thead>
+          <tr>
+            <th>Numéro</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Produits</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><strong>{{ order.order_number }}</strong></td>
+            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ order.client.username }}</td>
+            <td>{{ order.items.count }} article(s)</td>
+            <td><strong>{{ order.total_amount }} €</strong></td>
+            <td>
+              <span class="badge badge-pill {% if order.status == 'PENDING' %}badge-warning
+                                            {% elif order.status == 'DELIVERED' %}badge-success
+                                            {% elif order.status == 'CANCELLED' %}badge-danger
+                                            {% else %}badge-info{% endif %}">
+                {{ order.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <a href="#" class="btn btn-sm btn-action">Voir détails</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5">Aucune commande pour le moment</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

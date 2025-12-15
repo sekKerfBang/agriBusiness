@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Paiement - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .checkout-header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .checkout-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2.5rem;
+    }
+
+    .order-summary {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .total-price {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #d4edda;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="checkout-header">
+      <h1 class="section-title">Finaliser votre commande</h1>
+      <p style="font-size: 1.2rem; color: #a8d5ba;">Vérifiez vos informations et procédez au paiement sécurisé</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="checkout-card">
+          <h3 style="color: #d4edda; margin-bottom: 1.5rem;">Adresse de livraison</h3>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+              {{ form.shipping_address }}
+            </div>
+            <div class="mb-4">
+              {{ form.notes }}
+            </div>
+
+            <h3 style="color: #d4edda; margin: 2rem 0 1.5rem;">Paiement</h3>
+            <div id="payment-element">
+              <!-- Stripe Elements sera injecté ici -->
+            </div>
+
+            <button type="submit" class="btn btn-action btn-lg w-100 mt-4">
+              Payer {{ cart.get_total_amount }} €
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="order-summary">
+          <h3 style="color: #d4edda;">Récapitulatif</h3>
+          {% for item in cart.items.all %}
+          <div class="d-flex justify-content-between text-white mb-3">
+            <span>{{ item.product.name }} × {{ item.quantity }}</span>
+            <span>{{ item.get_subtotal }} €</span>
+          </div>
+          {% endfor %}
+          <hr style="border-color: rgba(255,255,255,0.3);">
+          <div class="d-flex justify-content-between">
+            <strong class="total-price">Total</strong>
+            <strong class="total-price">{{ cart.get_total_amount }} €</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

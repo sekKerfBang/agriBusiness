@@ -1,0 +1,12 @@
+body {
+    font-family: 'Roboto', sans-serif;  /* Font moderne */
+}
+.hero-section {
+    background-image: url('../images/hero-farm.jpg');  /* Image agro pro */
+}
+.feature-card {
+    transition: box-shadow 0.3s;  /* Effet hover pour attractif */
+}
+.feature-card:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}

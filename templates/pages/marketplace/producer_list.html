@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nos producteurs - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .page-title {
+      font-size: 2.8rem;
+      color: #d4edda;
+      text-align: center;
+      margin: 2rem 0;
+      font-weight: 700;
+    }
+
+    .producer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+
+    .producer-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .producer-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .producer-image {
+      height: 200px;
+      overflow: hidden;
+      background: #333;
+    }
+
+    .producer-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .producer-body {
+      padding: 1.8rem;
+      color: white;
+    }
+
+    .producer-name {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .producer-bio {
+      font-size: 1rem;
+      color: #a8d5ba;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .producer-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      color: #d4edda;
+    }
+
+    .btn-view {
+      background: linear-gradient(135deg, #43A047, #2e7d32);
+      border: none;
+      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
+      font-weight: 600;
+      margin-top: 1rem;
+      display: block;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .btn-view:hover {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="page-title">Nos producteurs partenaires</h1>
+
+    <div class="producer-grid">
+      {% for producer in producers %}
+      <div class="producer-card">
+        <div class="producer-image">
+          <!-- Image ferme ou logo producteur -->
+          <img src="{% static 'marketplace/images/producer-placeholder.jpg' %}" alt="{{ producer.user.username }}">
+        </div>
+        <div class="producer-body">
+          <h3 class="producer-name">{{ producer.user.username }}</h3>
+          <p class="producer-bio">{{ producer.description|truncatewords:20 }}</p>
+          <div class="producer-stats">
+            <span><i class="fas fa-box"></i> {{ producer.products_count }} produits</span>
+            <span><i class="fas fa-star"></i> 4.8/5</span>
+          </div>
+          <a href="{% url 'marketplace:producer_detail' producer.id %}" class="btn btn-view">
+            Voir le profil
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <p style="font-size: 1.5rem; color: #a8d5ba;">Aucun producteur pour le moment.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

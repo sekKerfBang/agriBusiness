@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiques - Dashboard{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="section-title">Statistiques de vente</h1>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="chart-container">
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="stat-card" style="height: 100%;">
+          <h3 class="text-center mb-4">Résumé mensuel</h3>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item bg-transparent text-white">
+              <strong>Meilleur mois :</strong> Juin 2025
+            </li>
+            <li class="list-group-item bg-transparent text-white">
+              <strong>Progression :</strong> +28% vs mois précédent
+            </li>
+            <li class="list-group-item bg-transparent text-white">
+              <strong>Produit star :</strong> Tomates bio
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ chart_data.labels|safe }},
+        datasets: [
+          {
+            label: 'Revenus (€)',
+            data: {{ chart_data.revenue|safe }},
+            borderColor: '#43A047',
+            backgroundColor: 'rgba(67, 175, 80, 0.2)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Nombre de commandes',
+            data: {{ chart_data.orders|safe }},
+            borderColor: '#81C784',
+            backgroundColor: 'rgba(129, 199, 132, 0.2)',
+            tension: 0.4,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#d4edda' } }
+        },
+        scales: {
+          x: { ticks: { color: '#a8d5ba' } },
+          y: { ticks: { color: '#a8d5ba' } },
+          y1: { position: 'right', ticks: { color: '#81C784' }, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  </script>
+{% endblock %}

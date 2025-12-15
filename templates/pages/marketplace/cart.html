@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mon panier - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .cart-header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .cart-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .cart-summary {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .cart-total {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d4edda;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="cart-header">
+      <h1 class="section-title">Mon panier</h1>
+      <p>{{ cart.items.count }} article{{ cart.items.count|pluralize }} (Total: €{{ cart.get_total_amount }})</p>
+    </div>
+
+    {% if cart and cart.items.exists %}
+      <div class="cart-items">
+        {% for item in cart.items.all %}
+          <div class="cart-item">
+            {% if item.product.image %}
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+            {% else %}
+              <div style="width: 100px; height: 100px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+                <i class="fas fa-image text-muted"></i>
+              </div>
+            {% endif %}
+            <div style="flex: 1;">
+              <h4 style="color: white; margin: 0;">{{ item.product.name }}</h4>
+              <p style="color: #a8d5ba; margin: 0.5rem 0;">Par {{ item.product.producer.user.username }}</p>
+              <p style="color: #ccc; margin: 0.5rem 0; font-size: 0.9rem;">{{ item.product.description|truncatewords:10 }}</p>
+            </div>
+            <div style="text-align: right;">
+              <p style="color: white; font-size: 1.3rem; margin: 0;">{{ item.quantity }} × €{{ item.product.price }}</p>
+              <p style="color: #d4edda; font-weight: 600;">€{{ item.get_subtotal }}</p>
+            </div>
+            <div>
+              <a href="#" class="btn btn-sm btn-outline-light" onclick="removeItem({{ item.id }})">Supprimer</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="cart-summary">
+        <p class="cart-total">Total : €{{ cart.get_total_amount }}</p>
+        <a href="{% url 'marketplace:checkout' %}" class="btn btn-success btn-lg rounded-pill px-5 py-3 mt-3">
+          <i class="fas fa-credit-card mr-2"></i> Passer la commande
+        </a>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-shopping-cart" style="font-size: 5rem; color: #666; margin-bottom: 2rem;"></i>
+        <h4 style="color: #a8d5ba;">Votre panier est vide</h4>
+        <p style="color: #ccc;">Commencez à explorer nos produits premium.</p>
+        <a href="{% url 'marketplace:product_list' %}" class="btn btn-success btn-lg rounded-pill px-5 mt-3">
+          <i class="fas fa-store mr-2"></i> Découvrir les produits
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Script pour supprimer item (exemple AJAX) -->
+  <script>
+    function removeItem(itemId) {
+      if (confirm('Supprimer cet article ?')) {
+        fetch(`/cart/remove/${itemId}/`, { method: 'DELETE' })  // À implémenter
+          .then(() => location.reload());
+      }
+    }
+  </script>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mon panier - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .cart-header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .cart-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .cart-summary {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .cart-total {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d4edda;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="cart-header">
+      <h1 class="section-title">Mon panier</h1>
+      <p>{{ cart.items.count }} article{{ cart.items.count|pluralize }}</p>
+    </div>
+
+    {% if cart.items.exists %}
+      <div class="cart-items">
+        {% for item in cart.items.all %}
+        <div class="cart-item">
+          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+          <div style="flex: 1;">
+            <h4 style="color: white; margin: 0;">{{ item.product.name }}</h4>
+            <p style="color: #a8d5ba; margin: 0.5rem 0;">{{ item.product.producer.user.username }}</p>
+          </div>
+          <div style="text-align: right;">
+            <p style="color: white; font-size: 1.3rem; margin: 0;">{{ item.quantity }} × {{ item.product.price }} €</p>
+            <p style="color: #d4edda; font-weight: 600;">{{ item.get_subtotal }} €</p>
+          </div>
+          <div>
+            <a href="#" class="btn btn-sm btn-outline-light">Supprimer</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="cart-summary">
+        <p class="cart-total">Total : {{ cart.get_total_amount }} €</p>
+        <a href="{% url 'marketplace:checkout' %}" class="btn btn-action btn-lg">
+          Passer la commande
+        </a>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-shopping-cart" style="font-size: 5rem; color: #666; margin-bottom: 2rem;"></i>
+        <p style="font-size: 1.5rem; color: #a8d5ba;">Votre panier est vide</p>
+        <a href="{% url 'marketplace:product_list' %}" class="btn btn-action btn-lg mt-3">
+          Découvrir les produits
+        </a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %} {% endcomment %}

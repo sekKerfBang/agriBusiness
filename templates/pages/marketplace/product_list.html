@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nos produits - Marketplace{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .page-title {
+      font-size: 2.8rem;
+      color: #d4edda;
+      text-align: center;
+      margin: 2rem 0;
+      font-weight: 700;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+
+    .product-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-image {
+      height: 220px;
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.1);
+    }
+
+    .product-body {
+      padding: 1.5rem;
+      color: white;
+    }
+
+    .product-name {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-producer {
+      font-size: 1rem;
+      color: #a8d5ba;
+      margin-bottom: 0.8rem;
+    }
+
+    .product-price {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #d4edda;
+    }
+
+    .btn-add-cart {
+      background: linear-gradient(135deg, #43A047, #2e7d32);
+      border: none;
+      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-add-cart:hover {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      transform: translateY(-3px);
+    }
+
+    .stock-low {
+      color: #ff8a65;
+      font-weight: 600;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="page-title">Nos produits frais</h1>
+
+    <div class="product-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-image">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% else %}
+            <img src="{% static 'marketplace/images/hero-farm.jpg' %}" alt="Pas d'image">
+          {% endif %}
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-producer">
+            par <a href="{% url 'marketplace:producer_detail' product.producer.id %}" style="color: #a8d5ba;">{{ product.producer.user.username }}</a>
+          </p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="product-price">{{ product.price }} €</div>
+              {% if product.stock < 10 %}
+                <small class="stock-low">Stock faible : {{ product.stock }} restant</small>
+              {% else %}
+                <small>{{ product.stock }} en stock</small>
+              {% endif %}
+            </div>
+            <a href="#" class="btn btn-add-cart">
+              <i class="fas fa-cart-plus"></i> Ajouter
+            </a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <p style="font-size: 1.5rem; color: #a8d5ba;">Aucun produit disponible pour le moment.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

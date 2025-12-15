@@ -1,0 +1,962 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load profile_tags %}{% block title %}{{ user_profile.username }} - Profil Professionnel | AgriBusiness Pro{% endblock %}{% block extra_css %}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0D3B1E;
+      --secondary: #2D5F3F;
+      --accent: #4A9D5E;
+      --neutral: #6B7280;
+      --dark: #0A0F0C;
+      --text: #FFFFFF;
+      --text-muted: #A0B0A8;
+      --background: rgba(13, 59, 30, 0.1);
+      --border: rgba(74, 157, 94, 0.2);
+    }body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+.profile-hero {
+  background: var(--primary);
+  margin: -1rem -15px 3rem -15px;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.profile-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-badge {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.profile-card {
+  background: var(--background);
+  border-radius: 12px;
+  padding: 3rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.info-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.info-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  max-width: 60%;
+}
+
+.producer-section {
+  background: rgba(74, 157, 94, 0.05);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-top: 3rem;
+}
+
+.security-section {
+  background: rgba(212, 175, 55, 0.05);
+  border-left: 4px solid var(--neutral);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-top: 3rem;
+}
+
+.action-bar {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.btn-edit {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 1.2rem 3rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: background 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-edit:hover {
+  background: #3E8A50;
+  color: var(--text);
+}
+
+.btn-dashboard {
+  background: var(--secondary);
+}
+
+.btn-dashboard:hover {
+  background: #254E32;
+}
+
+.btn-password {
+  background: var(--neutral);
+}
+
+.btn-password:hover {
+  background: #5A626F;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-active {
+  background: var(--accent);
+}
+
+.badge-inactive {
+  background: var(--neutral);
+}
+
+@media (max-width: 992px) {
+  .profile-title { font-size: 2.2rem; }
+  .profile-card { padding: 2.5rem; }
+}
+
+@media (max-width: 768px) {
+  .profile-title { font-size: 2rem; }
+  .profile-card { padding: 2rem; }
+  .info-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .info-value { text-align: left; max-width: 100%; }
+  .action-bar { flex-direction: column; gap: 1.5rem; }
+  .btn-edit { width: 100%; justify-content: center; }
+}  </style>
+{% endblock %}{% block content %}<div class="profile-hero">
+  <div class="container">
+    <h1 class="profile-title">{{ user_profile.username }}</h1>
+    <div class="profile-badge">
+      <i class="fas fa-user-tag"></i>
+      <span>{{ user_profile.get_role_display|default:"Utilisateur" }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="profile-card">
+    <!-- INFORMATIONS GÉNÉRALES -->
+    <div class="info-section">
+      <h2 class="section-title">
+        <i class="fas fa-id-card"></i> Informations Professionnelles
+      </h2>
+      
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-phone"></i> Téléphone
+    </div>
+    <div class="info-value">
+      {{ user_profile.phone|default:"Non renseigné" }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-map-marker-alt"></i> Localisation
+    </div>
+    <div class="info-value">
+      {{ user_profile.location|default:"Non renseignée" }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-calendar-check"></i> Membre depuis
+    </div>
+    <div class="info-value">
+      {{ user_profile.created_at|date:"d F Y" }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-user-check"></i> Statut
+    </div>
+    <div class="info-value">
+      {% if user_profile.is_active %}
+        <span class="status-badge badge-active">
+          <i class="fas fa-check-circle"></i> Actif
+        </span>
+      {% else %}
+        <span class="status-badge badge-inactive">
+          <i class="fas fa-clock"></i> Inactif
+        </span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- SECTION SÉCURITÉ AVEC MOT DE PASSE -->
+<div class="security-section">
+  <h2 class="section-title">
+    <i class="fas fa-lock"></i> Sécurité
+  </h2>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-key"></i> Mot de passe
+    </div>
+    <div class="info-value">
+      ********** <!-- Masquage -->
+      <small class="help-text">
+        (Dernière modification : {{ user_profile.last_password_change|date:"d/m/Y H:i"|default:"Non disponible" }})
+      </small>
+    </div>
+    {% comment %} <div class="info-value">
+      ********** <!-- Masquage du mot de passe pour sécurité -->
+      <small class="help-text">(Dernière modification : {{ user_profile.last_password_change|default:"Non disponible" }})</small>
+    </div> {% endcomment %}
+  </div>
+</div>
+
+<!-- PROFIL PRODUCTEUR (CONDITIONNEL) -->
+{% if user_profile.is_entreprise and producer_profile %}
+<div class="producer-section">
+  <h2 class="section-title">
+    <i class="fas fa-award"></i> Profil Producteur
+  </h2>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-leaf"></i> Certification Biologique
+    </div>
+    <div class="info-value">
+      {% if producer_profile.is_organic %}
+        <span class="status-badge badge-active">
+          <i class="fas fa-certificate"></i> Certifié AB
+        </span>
+      {% else %}
+        <span class="status-badge badge-inactive">
+          <i class="fas fa-times-circle"></i> Non certifié
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-align-left"></i> Description
+    </div>
+    <div class="info-value">
+      {{ producer_profile.description|default:"Aucune description fournie"|linebreaks }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-ribbon"></i> Autres Certifications
+    </div>
+    <div class="info-value">
+      {{ producer_profile.certifications|default:"Aucune certification supplémentaire"|linebreaks }}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- BARRE D'ACTION -->
+<div class="action-bar">
+  <a href="{% url 'utilisateur:profile_edit' %}" class="btn-edit">
+    <i class="fas fa-edit"></i> Modifier le profil
+  </a>
+  
+  {% if user.is_authenticated and user == user_profile %}
+    <a href="{% url 'utilisateur:password_reset' %}" class="btn-edit btn-password"> <!-- Assumer une URL pour changer le mot de passe -->
+      <i class="fas fa-key"></i> Changer le mot de passe
+    </a>
+    
+    <a href="{% url 'dashboard:index' %}" class="btn-edit btn-dashboard">
+      <i class="fas fa-tachometer-alt"></i> Accéder au tableau de bord
+    </a>
+  {% endif %}
+</div>  </div>
+</div>
+{% endblock %}
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+{% load profile_tags %}{% block title %}{{ user_profile.username }} - Profil Professionnel | AgriBusiness Pro{% endblock %}{% block extra_css %}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0D3B1E;
+      --secondary: #2D5F3F;
+      --accent: #4A9D5E;
+      --neutral: #6B7280;
+      --dark: #0A0F0C;
+      --text: #FFFFFF;
+      --text-muted: #A0B0A8;
+      --background: rgba(13, 59, 30, 0.1);
+      --border: rgba(74, 157, 94, 0.2);
+    }body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+.profile-hero {
+  background: var(--primary);
+  margin: -1rem -15px 3rem -15px;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.profile-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-badge {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.profile-card {
+  background: var(--background);
+  border-radius: 12px;
+  padding: 3rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.info-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.info-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  max-width: 60%;
+}
+
+.producer-section {
+  background: rgba(74, 157, 94, 0.05);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-top: 3rem;
+}
+
+.action-bar {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.btn-edit {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 1.2rem 3rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: background 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-edit:hover {
+  background: #3E8A50;
+  color: var(--text);
+}
+
+.btn-dashboard {
+  background: var(--secondary);
+}
+
+.btn-dashboard:hover {
+  background: #254E32;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-active {
+  background: var(--accent);
+}
+
+.badge-inactive {
+  background: var(--neutral);
+}
+
+@media (max-width: 992px) {
+  .profile-title { font-size: 2.2rem; }
+  .profile-card { padding: 2.5rem; }
+}
+
+@media (max-width: 768px) {
+  .profile-title { font-size: 2rem; }
+  .profile-card { padding: 2rem; }
+  .info-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .info-value { text-align: left; max-width: 100%; }
+  .action-bar { flex-direction: column; gap: 1.5rem; }
+  .btn-edit { width: 100%; justify-content: center; }
+}  </style>
+{% endblock %}{% block content %}<div class="profile-hero">
+  <div class="container">
+    <h1 class="profile-title">{{ user_profile.username }}</h1>
+    <div class="profile-badge">
+      <i class="fas fa-user-tag"></i>
+      <span>{{ user_profile.get_role_display|default:"Utilisateur" }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="profile-card">
+    <!-- INFORMATIONS GÉNÉRALES -->
+    <div class="info-section">
+      <h2 class="section-title">
+        <i class="fas fa-id-card"></i> Informations Professionnelles
+      </h2>
+      
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-phone"></i> Téléphone
+    </div>
+    <div class="info-value">
+      {{ user_profile.phone|default:"Non renseigné" }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-map-marker-alt"></i> Localisation
+    </div>
+    <div class="info-value">
+      {{ user_profile.location|default:"Non renseignée" }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-calendar-check"></i> Membre depuis
+    </div>
+    <div class="info-value">
+      {{ user_profile.created_at|date:"d F Y" }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-user-check"></i> Statut
+    </div>
+    <div class="info-value">
+      {% if user_profile.is_active %}
+        <span class="status-badge badge-active">
+          <i class="fas fa-check-circle"></i> Actif
+        </span>
+      {% else %}
+        <span class="status-badge badge-inactive">
+          <i class="fas fa-clock"></i> Inactif
+        </span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- PROFIL PRODUCTEUR (CONDITIONNEL) -->
+{% if user_profile.is_entreprise and producer_profile %}
+<div class="producer-section">
+  <h2 class="section-title">
+    <i class="fas fa-award"></i> Profil Producteur
+  </h2>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-leaf"></i> Certification Biologique
+    </div>
+    <div class="info-value">
+      {% if producer_profile.is_organic %}
+        <span class="status-badge badge-active">
+          <i class="fas fa-certificate"></i> Certifié AB
+        </span>
+      {% else %}
+        <span class="status-badge badge-inactive">
+          <i class="fas fa-times-circle"></i> Non certifié
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-align-left"></i> Description
+    </div>
+    <div class="info-value">
+      {{ producer_profile.description|default:"Aucune description fournie"|linebreaks }}
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-label">
+      <i class="fas fa-ribbon"></i> Autres Certifications
+    </div>
+    <div class="info-value">
+      {{ producer_profile.certifications|default:"Aucune certification supplémentaire"|linebreaks }}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- BARRE D'ACTION -->
+<div class="action-bar">
+  <a href="{% url 'utilisateur:profile_edit' %}" class="btn-edit">
+    <i class="fas fa-edit"></i> Modifier le profil
+  </a>
+  
+  {% if user.is_authenticated and user == user_profile %}
+    <a href="{% url 'dashboard:index' %}" class="btn-edit btn-dashboard">
+      <i class="fas fa-tachometer-alt"></i> Accéder au tableau de bord
+    </a>
+  {% endif %}
+</div>  </div>
+</div>
+{% endblock %} {% endcomment %}
+
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+{% load profile_tags %} 
+
+{% block title %}{{ user_profile.username }} - Profil Pro | AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0D3B1E;
+      --secondary: #2D5F3F;
+      --accent: #4A9D5E;
+      --gold: #D4AF37;
+      --danger: #C92A2A;
+      --dark: #0A0F0C;
+      --text: #FFFFFF;
+      --text-muted: #A0B0A8;
+      --glass: rgba(13, 59, 30, 0.4);
+    }
+
+    body {
+      background: radial-gradient(ellipse at center, var(--dark) 0%, #000000 100%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .profile-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      margin: -2rem -15px 5rem -15px;
+      padding: 6rem 0 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('https://images.unsplash.com/photo-1500388715000-9a288a80f10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+      opacity: 0.15;
+      mix-blend-mode: multiply;
+    }
+
+    .profile-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--text);
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 5px 20px rgba(0,0,0,0.7);
+    }
+
+    .profile-badge {
+      background: var(--glass);
+      border: 2px solid var(--gold);
+      border-radius: 50px;
+      padding: 1rem 2rem;
+      margin-top: 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--gold);
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .profile-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 4rem;
+      border: 1px solid rgba(74, 157, 94, 0.3);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+      margin-bottom: 3rem;
+    }
+
+    .info-section {
+      margin-bottom: 4rem;
+    }
+
+    .section-title {
+      color: var(--green);
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 1.1rem;
+      color: #a8d5ba;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .info-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: right;
+      max-width: 60%;
+    }
+
+    .producer-section {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(74, 157, 94, 0.1) 100%);
+      border-left: 6px solid var(--gold);
+      border-radius: 20px;
+      padding: 3rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+
+    .producer-section::before {
+      content: '✦ PRODUCTEUR ✦';
+      position: absolute;
+      top: -15px;
+      left: 2rem;
+      background: var(--gold);
+      color: var(--dark);
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 3rem;
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border: none;
+      border-radius: 18px;
+      padding: 1.5rem 3rem;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.4s ease;
+      box-shadow: 0 15px 40px rgba(74, 157, 94, 0.6);
+      text-decoration: none;
+    }
+
+    .btn-edit:hover {
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 20px 50px rgba(74, 157, 94, 0.8);
+      color: var(--text);
+    }
+
+    .status-badge {
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-success { background: linear-gradient(135deg, var(--accent), var(--secondary)); }
+    .badge-secondary { background: rgba(255,255,255,0.1); }
+
+    @media (max-width: 768px) {
+      .profile-title { font-size: 3rem; }
+      .info-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .info-value { text-align: left; max-width: 100%; }
+      .action-bar { flex-direction: column; }
+      .btn-edit { width: 100%; justify-content: center; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-hero">
+  <div class="container text-center">
+    <h1 class="profile-title">{{ user_profile.username }}</h1>
+    <div class="profile-badge">
+      <i class="fas fa-user-tag"></i>
+      <span>{{ user_profile.get_role_display|default:"Agriculteur" }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="profile-card">
+    <!-- INFORMATIONS GÉNÉRALES -->
+    <div class="info-section">
+      <h2 class="section-title">
+        <i class="fas fa-id-card"></i> Infos Professionnelles
+      </h2>
+      
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-phone"></i> Contact
+        </div>
+        <div class="info-value">
+          {{ user_profile.phone|default:"Non renseigné" }}
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-map-marker-alt"></i> Localisation
+        </div>
+        <div class="info-value">
+          {{ user_profile.location|default:"Non renseignée" }}
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-calendar-check"></i> Membre depuis
+        </div>
+        <div class="info-value">
+          {{ user_profile.created_at|date:"d F Y" }}
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-user-check"></i> Statut
+        </div>
+        <div class="info-value">
+          {% if user_profile.is_active %}
+            <span class="status-badge badge-success">
+              <i class="fas fa-check-circle"></i> Actif
+            </span>
+          {% else %}
+            <span class="status-badge badge-secondary">
+              <i class="fas fa-clock"></i> Inactif
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL PRODUCTEUR (CONDITIONNEL) -->
+    {% if user_profile.is_entreprise and producer_profile %}
+    <div class="producer-section">
+      <h2 class="section-title">
+        <i class="fas fa-award"></i> Profil Producteur
+      </h2>
+
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-leaf"></i> Certification Bio
+        </div>
+        <div class="info-value">
+          {% if producer_profile.is_organic %}
+            <span class="status-badge badge-success">
+              <i class="fas fa-certificate"></i> Certifié AB
+            </span>
+          {% else %}
+            <span class="status-badge badge-secondary">
+              <i class="fas fa-times-circle"></i> Non certifié
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-align-left"></i> Description
+        </div>
+        <div class="info-value">
+          {{ producer_profile.description|default:"Aucune description"|linebreaks }}
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">
+          <i class="fas fa-ribbon"></i> Certifications
+        </div>
+        <div class="info-value">
+          {{ producer_profile.certifications|default:"Aucune"|linebreaks }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- BARRE D'ACTION -->
+    <div class="action-bar">
+      <a href="{% url 'utilisateur:profile_edit' %}" class="btn-edit">
+        <i class="fas fa-edit"></i> Éditer mon profil
+      </a>
+      
+      {% if user.is_authenticated and user == user_profile %}
+        <a href="{% url 'dashboard:index' %}" class="btn-edit" style="background: linear-gradient(135deg, var(--gold), #B8860B);">
+          <i class="fas fa-tachometer-alt"></i> Mon Dashboard
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} {% endcomment %}

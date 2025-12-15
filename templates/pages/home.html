@@ -1,0 +1,109 @@
+{% extends 'base.html' %}  {# Suppose qu'il y a un base.html global avec header/footer, CSS/JS #}
+
+{% load static %}  {# Pour charger static files comme CSS, images #}
+
+{% block title %}Accueil AgriBusiness - Plateforme de Gestion Agricole{% endblock %}
+
+{% block content %}
+  <!-- Hero Section : Accueil attractif avec image de fond agricole, slogan professionnel -->
+  <section class="hero-section" style="background-image: url('{% static 'marketplace/images/hero-farm.jpg' %}'); background-size: cover; background-position: center; height: 80vh; display: flex; align-items: center; justify-content: center; color: white; text-align: center;">
+    <div class="hero-overlay" style="background-color: rgba(0, 0, 0, 0.5); padding: 4rem; border-radius: 8px;">
+      <h1 class="hero-title" style="font-size: 3rem; margin-bottom: 1rem;">Bienvenue sur AgriBusiness</h1>
+      <p class="hero-subtitle" style="font-size: 1.5rem; margin-bottom: 2rem;">Connectez-vous aux meilleurs fournisseurs et clients du secteur agricole. Échangez, commandez et développez votre business en ligne.</p>
+      <a href="{% url 'marketplace:product_list' %}" class="btn btn-primary btn-lg" style="background-color: #4CAF50; border: none; padding: 1rem 2rem; border-radius: 5px;">Découvrir les Produits</a>
+    </div>
+  </section>
+
+  <!-- Section Avantages : Cartes modernes pour présenter les fonctionnalités -->
+  <section class="features-section" style="padding: 4rem 0; background-color: #f8f9fa;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+      <h2 class="section-title" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #333;">Pourquoi AgriBusiness ?</h2>
+      <div class="row" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+        <div class="feature-card" style="width: 30%; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; text-align: center;">
+          <i class="fas fa-handshake" style="font-size: 3rem; color: #4CAF50; margin-bottom: 1rem;"></i>
+          <h3>Connexions Directes</h3>
+          <p>Reliez clients et entreprises pour des échanges rapides et sécurisés.</p>
+        </div>
+        <div class="feature-card" style="width: 30%; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; text-align: center;">
+          <i class="fas fa-shopping-cart" style="font-size: 3rem; color: #4CAF50; margin-bottom: 1rem;"></i>
+          <h3>Marketplace Intuitive</h3>
+          <p>Commandez semences, équipements et récoltes en quelques clics.</p>
+        </div>
+        <div class="feature-card" style="width: 30%; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; text-align: center;">
+          <i class="fas fa-chart-line" style="font-size: 3rem; color: #4CAF50; margin-bottom: 1rem;"></i>
+          <h3>Outils Professionnels</h3>
+          <p>Dashboard, chat et suivis pour booster votre business agricole.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Produits Populaires : Liste dynamique avec HTMX pour refresh sans reload -->
+  <section class="products-section" style="padding: 4rem 0; background-color: white;">
+    <div class="container"  style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+      <h2 class="section-title" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #333;">Produits Populaires</h2>
+      <div 
+      id="products-list" 
+      class="row"
+      hx-get="{% url 'marketplace:popular_products' %}" 
+      hx-trigger="load" 
+      hx-swap="innerHTML"
+      hx-indicator="#loading-indicator" 
+      style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+         <!-- Placeholder initial (sera remplacé) -->
+            <div class="text-center w-100">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4CAF50;"></i>
+                <p>Chargement des produits...</p>
+            </div>
+            </div>
+            
+            <!-- Indicateur de chargement (optionnel) -->
+            <div id="loading-indicator" class="htmx-indicator" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Mise à jour...
+            </div>
+        <!-- Liste chargée dynamiquement via HTMX (appel à une view popular_products qui retourne un partial template) -->
+        <!-- Ex: Boucle sur produits avec cards : image, nom, prix, bouton "Ajouter au panier" -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Témoignages : Carrousel professionnel pour crédibilité -->
+  <section class="testimonials-section" style="padding: 4rem 0; background-color: #f8f9fa;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+      <h2 class="section-title" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #333;">Ce que disent nos utilisateurs</h2>
+      <div class="testimonial-carousel" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+        <div class="testimonial" style="width: 30%; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem;">
+          <p>"AgriBusiness a révolutionné mes achats de semences !"</p>
+          <cite>- Davide, Agriculteur bio</cite>
+        </div>
+        <div class="testimonial" style="width: 30%; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem;">
+          <p>"Plateforme simple et efficace pour vendre nos récoltes."</p>
+          <cite>- NobodyBks, Fournisseur d'équipements</cite>
+        </div>
+        <div class="testimonial" style="width: 30%; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem;">
+          <p>"Le chat intégré facilite les négociations."</p>
+          <cite>- Mariama, Coopérative agricole</cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section : Appel à action pour inscription ou connexion -->
+  <section class="cta-section" style="padding: 4rem 0; background-color: #4CAF50; color: white; text-align: center;">
+    <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Rejoignez AgriBusiness dès aujourd'hui !</h2>
+    <p style="font-size: 1.2rem; margin-bottom: 2rem;">Créez un compte gratuit et commencez à échanger.</p>
+    <a href="{% url 'utilisateur:register' %}" class="btn btn-light btn-lg" style="padding: 1rem 2rem; border-radius: 5px;">S'inscrire</a>
+    <a href="{% url 'utilisateur:login' %}" class="btn btn-outline-light btn-lg ml-2" style="padding: 1rem 2rem; border-radius: 5px;">Se connecter</a>
+  </section>
+
+{% endblock %}
+
+{% block extra_css %}
+  <!-- CSS personnalisé pour style moderne (Bootstrap 5 ou Tailwind, assume Bootstrap inclus dans base.html) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">  {# Pour icons #}
+{% endblock %}
+
+{% block extra_js %}
+  <!-- HTMX pour dynamisme (ex: load produits sans reload) -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+{% endblock %}

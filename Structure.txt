@@ -1,0 +1,59 @@
+agriculture-platform/
+├── config/                     # Seulement la configuration Django
+│   ├── settings/
+│   │   ├── __init__.py
+│   │   ├── base.py            # Configuration de base
+│   │   ├── development.py     # Dev settings
+│   │   └── production.py      # Prod settings
+│   ├── celery.py              # Configuration Celery
+│   ├── asgi.py                # ASGI pour async
+│   ├── wsgi.py
+│   └── urls.py                # Routeur principal
+├── apps/                       # Applications modulaires
+│   ├── users/                  # Auth & profils
+│   ├── products/               # Catalogue produits
+│   ├── orders/                 # Commandes & panier
+│   ├── marketplace/            # Interface client
+│   └── dashboard/              # Interface producteur
+├── services/                   # COUCHE BUSINESS LOGIQUE
+│   ├── __init__.py
+│   ├── email_service.py        # Service email async
+│   ├── notification_service.py # Notifications push/email
+│   └── payment_service.py      # Intégration Stripe
+├── tasks/                      # TÂCHES CELERY
+│   ├── __init__.py
+│   ├── email_tasks.py          # Emails en background
+│   └── product_tasks.py        # Notifications stock
+├── utils/                      # UTILITAIRES RÉUTILISABLES
+│   ├── __init__.py
+│   ├── mixins.py               # Partial functions & mixins
+│   ├── paginators.py           # Pagination custom
+│   └── validators.py           # Validateurs custom
+├── mobile/                     # App Flet
+├── docker/                     # Docker complètement configuré
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── .dockerignore
+├── scripts/
+│   └── init_project.py         # Script d'initialisation
+├── tests/                      # Tests unitaires
+├── .env.example
+├── requirements.txt
+└── manage.py
+
+
+
+# Admin
+
+
+# 
+
+#models 
+
+
+#serializers 
+
+
+
+# services 
+        

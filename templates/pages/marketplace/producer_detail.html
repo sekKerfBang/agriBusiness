@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ producer.user.username }} - Profil producteur{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .producer-header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .producer-name {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #d4edda;
+    }
+
+    .producer-bio {
+      font-size: 1.3rem;
+      color: #a8d5ba;
+      max-width: 800px;
+      margin: 1.5rem auto;
+    }
+
+    .producer-info {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .info-item {
+      text-align: center;
+      color: white;
+    }
+
+    .info-icon {
+      font-size: 2rem;
+      color: #43A047;
+      margin-bottom: 0.5rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .product-card-small {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .product-card-small:hover {
+      transform: translateY(-8px);
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="producer-header">
+      <h1 class="producer-name">{{ producer.user.username }}</h1>
+      {% if producer.is_organic %}
+        <span class="badge badge-success" style="font-size: 1.2rem; padding: 0.5rem 1rem;">Bio certifié</span>
+      {% endif %}
+      <p class="producer-bio">{{ producer.description }}</p>
+
+      <div class="producer-info">
+        <div class="info-item">
+          <i class="fas fa-map-marker-alt info-icon"></i>
+          <div>{{ producer.user.location|default:"Non renseigné" }}</div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-phone info-icon"></i>
+          <div>{{ producer.user.phone|default:"Non renseigné" }}</div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-box info-icon"></i>
+          <div>{{ products_count }} produits</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Produits proposés</h2>
+
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card-small">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 180px; object-fit: cover;">
+        <div class="p-3">
+          <h4 style="color: white; margin-bottom: 0.5rem;">{{ product.name }}</h4>
+          <p style="color: #a8d5ba; margin: 0.5rem 0;">{{ product.price }} €</p>
+          <a href="#" class="btn btn-sm btn-action w-100">Voir le produit</a>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-center" style="grid-column: 1 / -1; color: #a8d5ba;">Aucun produit disponible</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

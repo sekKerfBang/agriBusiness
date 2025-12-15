@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Connexion - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+    .login-card {
+      max-width: 450px;
+      background: linear-gradient(135deg, #ffffff, #f0f4f8);  
+      box-shadow: 0 15px 30px rgba(0, 128, 0, 0.1);  
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;  
+    }
+    .login-card:hover {
+      transform: translateY(-10px);  
+      box-shadow: 0 20px 40px rgba(0, 128, 0, 0.15);
+    }
+    .login-header {
+      background: linear-gradient(135deg, #4CAF50, #388E3C);  
+      color: white;
+      padding: 2.5rem;
+      text-align: center;
+      position: relative;
+    }
+    .login-header::before {
+      content: '\f023'; 
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      font-size: 3rem;
+      opacity: 0.2;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .login-form {
+      padding: 2.5rem;
+    }
+    .form_label {
+      font-weight: 600px;
+      color: #2e7d32;
+    }
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #ced4da;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-control:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);  
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4CAF50, #388E3C);
+      border: none;
+      border-radius: 10px;
+      padding: 1rem;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #388E3C, #2E7D32);
+      transform: scale(1.05);  
+    }
+    .loading-indicator {
+      animation: spin 1s linear infinite;  
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .forgot-link, .register-link {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .forgot-link a, .register-link a {
+      color: #4CAF50;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .forgot-link a:hover, .register-link a:hover {
+      color: #388E3C;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Bienvenue sur AgriBusiness</h2>
+        <p style="font-size: 1.1rem; opacity: 0.9;">Connectez-vous pour accéder à votre espace agricole professionnel</p>
+      </div>
+      <div class="login-form">
+        <form 
+        method="post" 
+        hx-post="{% url 'utilisateur:login' %}"
+        hx-target="body"
+        hx-swap="outerHTML"
+        >
+          {% csrf_token %}
+          {{ form.as_p }}  
+          <button type="submit" class="btn btn-primary btn-block">
+          <span class="loading-indicator" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Chargement...
+          </span>
+          <span class="btn-text">Se connecter</span>
+        </button>
+        </form>
+        <div class="forgot-link">
+         <a href="{% url 'utilisateur:password_reset' %}" style="color: #4CAF50;">Mot de passe oublié ?</a>
+        </div>
+        <div class="register-link">
+          <p>Pas de compte ? <a href="{% url 'utilisateur:register' %}">S'inscrire</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // ✅ Spinner avec JavaScript PUR (plus fiable)
+    document.querySelector('form').addEventListener('submit', function() {
+      const btn = this.querySelector('button[type="submit"]');
+      const spinner = btn.querySelector('.loading-indicator');
+      const text = btn.querySelector('.btn-text');
+      
+      spinner.style.display = 'inline-block';
+      text.style.display = 'none';
+      btn.disabled = true;
+  });
+</script>
+{% endblock %}

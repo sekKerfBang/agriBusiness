@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block hide_navbar %}true{% endblock %}
+
+{% block title %}Inscription — AgriBusiness{% endblock %}
+
+{% block extra_css %}
+  <style>
+    /* Fond doux avec texture agricole subtile */
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4efe7 100%);
+      min-height: 100vh;
+    }
+
+    .register-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 1rem 6rem; /* Plus d'air en haut et en bas */
+    }
+
+    .register-card {
+      max-width: 560px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 100, 0, 0.12);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0, 0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .register-header {
+      background: linear-gradient(135deg, #43A047, #2e7d32);
+      color: white;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .register-header::before {
+      content: '\f234';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      font-size: 7rem;
+      opacity: 0.07;
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .register-header h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .register-header p {
+      font-size: 1.2rem;
+      opacity: 0.95;
+      margin-top: 0.8rem;
+    }
+
+    .register-body {
+      padding: 3.5rem 3rem 4rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #2e7d32;
+      margin-bottom: 0.6rem;
+    }
+
+    .form-control, .form-select {
+      height: 56px;
+      border-radius: 14px;
+      border: 2px solid #e8f5e8;
+      padding: 0.75rem 1.2rem;
+      font-size: 1.05rem;
+      transition: all 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .row.g-3 > div {
+      padding-left: 0.8rem;
+      padding-right: 0.8rem;
+    }
+
+    .btn-register {
+      height: 60px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #43A047, #2e7d32);
+      border: none;
+      margin-top: 1rem;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-register:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(46, 125, 50, 0.4);
+    }
+
+    .btn-register .htmx-indicator {
+      color: white;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: 1.05rem;
+    }
+
+    .login-link a {
+      color: #43A047;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .login-link a:hover {
+      color: #2e7d32;
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+      .register-header h1 { font-size: 2.3rem; }
+      .register-header { padding: 3rem 1.5rem; }
+      .register-body { padding: 2.5rem 2rem; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="register-wrapper">
+    <div class="register-card">
+
+      <!-- En-tête -->
+      <div class="register-header">
+        <h1>Rejoignez AgriBusiness</h1>
+        <p>Créez votre compte en moins d'une minute</p>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div class="register-body">
+
+        <form method="post"
+              hx-post="{% url 'utilisateur:register' %}"
+              hx-swap="outerHTML"
+              hx-indicator="#btn-spinner">
+
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">{{ form.username.label }}</label>
+              {{ form.username }}
+              {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.email.label }}</label>
+              {{ form.email }}
+              {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.password1.label }}</label>
+              {{ form.password1 }}
+              {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.password2.label }}</label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.role.label }}</label>
+              {{ form.role }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.phone.label }}</label>
+              {{ form.phone }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.location.label }}</label>
+              {{ form.location }}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-register btn-lg w-100" id="btn-spinner">
+            <span class="htmx-indicator" style="display:none;">
+              Création en cours...
+            </span>
+            Créer mon compte
+          </button>
+        </form>
+
+        <div class="login-link">
+          Déjà membre ? <a href="{% url 'utilisateur:login' %}">Se connecter</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // Spinner pendant HTMX
+    document.body.addEventListener('htmx:beforeRequest', e => {
+      e.detail.elt.querySelector('.htmx-indicator').style.display = 'inline';
+    });
+    document.body.addEventListener('htmx:afterRequest', e => {
+      e.detail.elt.querySelector('.htmx-indicator').style.display = 'none';
+    });
+  </script>
+{% endblock %}
+
