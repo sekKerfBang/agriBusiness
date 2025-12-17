@@ -5,6 +5,607 @@
 
 {% block extra_css %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css">
+  <style>
+    :root {
+      --primary: #1B5E20;
+      --secondary: #2E7D32;
+      --accent: #4CAF50;
+      --light-accent: #81C784;
+      --danger: #C62828;
+      --glass: rgba(27, 94, 32, 0.3);
+      --text: #FFFFFF;
+      --text-muted: #C8E6C9;
+    }
+
+    .stats-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .stats-title {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--green);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .stats-title i {
+      color: var(--accent);
+      font-size: 3.5rem;
+    }
+
+    .stats-subtitle {
+      font-size: 1.4rem;
+      color: var(--light-accent);
+      opacity: 0.9;
+    }
+
+    .chart-wrapper {
+      background: var(--green);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      height: 100%;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 480px;
+      width: 100%;
+    }
+
+    .summary-card {
+      background: var(--green);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .summary-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .summary-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 1.15rem;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .summary-value {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .highlight-accent {
+      color: var(--white);
+      font-size: 1.3rem;
+    }
+
+    .highlight-positive {
+      color: #fff;
+    }
+
+    .highlight-negative {
+      color: #FF8A65;
+    }
+
+    @media (max-width: 992px) {
+      .stats-title { font-size: 2.8rem; flex-direction: column; gap: 0.5rem; }
+      .stats-title i { font-size: 3rem; }
+      .chart-container { height: 400px; }
+    }
+
+    @media (max-width: 768px) {
+      .chart-wrapper, .summary-card { margin-bottom: 2rem; }
+      .chart-container { height: 350px; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+    <div class="stats-header" data-aos="fade-down">
+      <h1 class="stats-title">
+        <i class="fas fa-chart-line"></i>
+        Statistiques de vente
+      </h1>
+      <p class="stats-subtitle">Suivez l'évolution de votre activité en temps réel</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="chart-wrapper" data-aos="fade-right">
+          <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="summary-card" data-aos="fade-left">
+          <h3 class="summary-title">Résumé {{ current_year }}</h3>
+          <ul class="summary-list">
+            <li class="summary-item">
+              <span class="summary-label">Meilleur mois</span>
+              <span class="summary-value highlight-accent">
+                {{ best_month.name }} ({{ best_month.revenue|floatformat:2 }} €)
+              </span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Progression mensuelle</span>
+              <span class="summary-value {% if monthly_growth >= 0 %}highlight-positive{% else %}highlight-negative{% endif %}">
+                {% if monthly_growth >= 0 %}+{% endif %}{{ monthly_growth|floatformat:1 }}%
+              </span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Produit star</span>
+              <span class="summary-value highlight-accent">
+                {{ top_product.name }} ({{ top_product.quantity }} vendues)
+              </span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Total revenus ({{ current_year }})</span>
+              <span class="summary-value">{{ total_revenue|floatformat:2 }} €</span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Commandes totales ({{ current_year }})</span>
+              <span class="summary-value">{{ total_orders }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    const gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientFill.addColorStop(0, 'rgba(76, 175, 80, 0.4)');
+    gradientFill.addColorStop(1, 'rgba(76, 175, 80, 0.05)');
+
+    const gradientFill2 = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientFill2.addColorStop(0, 'rgba(129, 199, 132, 0.3)');
+    gradientFill2.addColorStop(1, 'rgba(129, 199, 132, 0.05)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ chart_data.labels|safe }},
+        datasets: [
+          {
+            label: 'Revenus (€)',
+            data: {{ chart_data.revenue|safe }},
+            borderColor: '#fff',
+            backgroundColor: gradientFill,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#19c921ff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          },
+          {
+            label: 'Nombre de commandes',
+            data: {{ chart_data.orders|safe }},
+            borderColor: '#fff',
+            backgroundColor: gradientFill2,
+            tension: 0.4,
+            yAxisID: 'y1',
+            pointBackgroundColor: '#19c921ff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#d4edda', font: { size: 14, weight: '600' }, padding: 20, usePointStyle: true }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            cornerRadius: 12
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(248, 238, 238, 0.24)' }, ticks: { color: '#fff', font: { size: 13 } } },
+          y: { grid: { color: 'rgba(246, 246, 246, 0.17)' }, ticks: { color: '#fff' }, title: { display: true, text: 'Revenus (€)', color: '#fff', font: { size: 14, weight: 'bold' } } },
+          y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#fff' }, title: { display: true, text: 'Commandes', color: '#fff', font: { size: 14, weight: 'bold' } } }
+        }
+      }
+    });
+  </script>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiques - Dashboard{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css">
+  <style>
+    :root {
+      --primary: #1B5E20;
+      --secondary: #2E7D32;
+      --accent: #4CAF50;
+      --light-accent: #81C784;
+      --danger: #C62828;
+      --glass: rgba(27, 94, 32, 0.3);
+      --text: #FFFFFF;
+      --text-muted: #C8E6C9;
+    }
+
+    .stats-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .stats-title {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--green);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .stats-title i {
+      color: var(--accent);
+      font-size: 3.5rem;
+    }
+
+    .stats-subtitle {
+      font-size: 1.4rem;
+      color: var(--light-accent);
+      opacity: 0.9;
+    }
+
+    .chart-wrapper {
+      background: var(--green);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      height: 100%;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 480px;
+      width: 100%;
+    }
+
+    .summary-card {
+      background: var(--green);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .summary-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .summary-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 1.15rem;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .summary-value {
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .highlight-accent {
+      color: var(--#fff);
+      font-size: 1.3rem;
+    }
+
+    .highlight-positive {
+      color: #e1ede2ff;
+    }
+
+    @media (max-width: 992px) {
+      .stats-title {
+        font-size: 2.8rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .stats-title i {
+        font-size: 3rem;
+      }
+      .chart-container {
+        height: 400px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .chart-wrapper,
+      .summary-card {
+        margin-bottom: 2rem;
+      }
+      .chart-container {
+        height: 350px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+    <!-- En-tête -->
+    <div class="stats-header" data-aos="fade-down">
+      <h1 class="stats-title">
+        <i class="fas fa-chart-line"></i>
+        Statistiques de vente
+      </h1>
+      <p class="stats-subtitle">Suivez l'évolution de votre activité en temps réel</p>
+    </div>
+
+    <div class="row">
+      <!-- Graphique principal -->
+      <div class="col-lg-8">
+        <div class="chart-wrapper" data-aos="fade-right">
+          <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résumé mensuel -->
+      <div class="col-lg-4">
+        <div class="summary-card" data-aos="fade-left">
+          <h3 class="summary-title">Résumé actuel</h3>
+          <ul class="summary-list">
+            <li class="summary-item">
+              <span class="summary-label">Meilleur mois :</span>
+              <span class="summary-value highlight-accent">Juin 2025</span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Progression mensuelle</span>
+              <span class="summary-value highlight-positive">+28%</span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Produit star</span>
+              <span class="summary-value highlight-accent">Tomates bio</span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Total revenus (année)</span>
+              <span class="summary-value">{{ total_revenue|floatformat:2 }} €</span>
+            </li>
+            <li class="summary-item">
+              <span class="summary-label">Commandes totales</span>
+              <span class="summary-value">{{ total_orders }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %} {% endcomment %}
+{% comment %} 
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    const gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientFill.addColorStop(0, 'rgba(76, 175, 80, 0.4)');
+    gradientFill.addColorStop(1, 'rgba(69, 141, 72, 0.05)');
+
+    const gradientFill2 = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientFill2.addColorStop(0, 'rgba(129, 199, 132, 0.3)');
+    gradientFill2.addColorStop(1, 'rgba(129, 199, 132, 0.05)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ chart_data.labels|safe }},
+        datasets: [
+          {
+            label: 'Revenus (€)',
+            data: {{ chart_data.revenue|safe }},
+            borderColor: '#4CAF50',
+            backgroundColor: gradientFill,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#05b60eff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          },
+          {
+            label: 'Nombre de commandes',
+            data: {{ chart_data.orders|safe }},
+            borderColor: '#81C784',
+            backgroundColor: gradientFill2,
+            tension: 0.4,
+            yAxisID: 'y1',
+            pointBackgroundColor: '#05b60eff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: 'white',
+              font: {
+                size: 14,
+                weight: '600'
+              },
+              padding: 20,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            cornerRadius: 12,
+            displayColors: true
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.69)'
+            },
+            ticks: {
+              color: 'white',
+              font: {
+                size: 13
+              }
+            }
+          },
+          y: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.91)'
+            },
+            ticks: {
+              color: 'white'
+            },
+            title: {
+              display: true,
+              text: 'Revenus (€)',
+              color: 'white',
+              font: {
+                size: 14,
+                weight: 'bold'
+              }
+            }
+          },
+          y1: {
+            position: 'right',
+            grid: {
+              drawOnChartArea: false
+            },
+            ticks: {
+              color: 'white'
+            },
+            title: {
+              display: true,
+              text: 'Commandes',
+              color: 'white',
+              font: {
+                size: 13,
+                weight: 'bold'
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+{% endblock %} {% endcomment %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiques - Dashboard{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css">
 {% endblock %}
 
 {% block content %}
@@ -77,4 +678,4 @@
       }
     });
   </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

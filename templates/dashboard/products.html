@@ -3,6 +3,296 @@
 
 {% block title %}Mes produits - Dashboard{% endblock %}
 
+{% block extra_css %}
+  <style>
+    :root {
+      --primary: #1B5E20;
+      --secondary: #2E7D32;
+      --accent: #4CAF50;
+      --light-accent: #81C784;
+      --danger: #C62828;
+      --glass: rgba(27, 94, 32, 0.3);
+      --text: #FFFFFF;
+      --text-muted: #C8E6C9;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .page-title i {
+      color: var(--accent);
+      font-size: 3rem;
+    }
+
+    .btn-add-product {
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border: none;
+      border-radius: 50px;
+      padding: 0.9rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .btn-add-product:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(76, 175, 80, 0.6);
+      color: white;
+    }
+
+    .btn-add-product i {
+      font-size: 1.3rem;
+    }
+
+    .products-table-wrapper {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2rem;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .table-products {
+      background: transparent;
+      color: var(--text);
+      margin-bottom: 0;
+    }
+
+    .table-products thead th {
+      background: var(--primary);
+      color: var(--text);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 1.3rem 1rem;
+      border: none;
+    }
+
+    .table-products tbody tr {
+      transition: background 0.3s;
+    }
+
+    .table-products tbody tr:hover {
+      background: rgba(76, 175, 80, 0.15);
+    }
+
+    .table-products td {
+      padding: 1.5rem 1rem;
+      vertical-align: middle;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .product-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .product-image-placeholder {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #444, #333);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      font-size: 1.8rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .stock-level {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .stock-low { color: var(--danger); }
+    .stock-medium { color: #FF8A65; }
+    .stock-good { color: var(--light-accent); }
+
+    .status-badge {
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .btn-edit {
+      background: rgba(76, 175, 80, 0.3);
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-edit:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(198, 40, 40, 0.2);
+      color: var(--text);
+      border: 1px solid var(--danger);
+      border-radius: 12px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-delete:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 5rem;
+      opacity: 0.4;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .page-title {
+        font-size: 2.4rem;
+      }
+      .product-image,
+      .product-image-placeholder {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+    <!-- En-tête de page -->
+    <div class="page-header" data-aos="fade-down">
+      <h1 class="page-title">
+        <i class="fas fa-seedling"></i>
+        Mes produits
+      </h1>
+      <a href="{% url 'dashboard:add_product' %}" class="btn btn-add-product">
+        <i class="fas fa-plus"></i> Ajouter un produit
+      </a>
+    </div>
+
+    <!-- Tableau des produits -->
+    <div class="products-table-wrapper" data-aos="fade-up">
+      {% if products %}
+        <div class="table-responsive">
+          <table class="table table-products">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product in products %}
+              <tr>
+                <td>
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                  {% else %}
+                    <div class="product-image-placeholder">
+                      <i class="fas fa-seedling"></i>
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ product.name }}</strong>
+                  <br>
+                  <small class="text-muted">{{ product.description|truncatechars:60 }}</small>
+                </td>
+                <td>{{ product.category.name }}</td>
+                <td><strong>{{ product.price|floatformat:2 }} €</strong></td>
+                <td>
+                  <span class="stock-level
+                    {% if product.stock < 10 %}stock-low
+                    {% elif product.stock < 30 %}stock-medium
+                    {% else %}stock-good{% endif %}">
+                    {{ product.stock }} unités
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge {% if product.is_active %}badge-success{% else %}badge-secondary{% endif %}">
+                    {% if product.is_active %}Actif{% else %}Inactif{% endif %}
+                  </span>
+                </td>
+                <td>
+                  <a href="{% url 'dashboard:edit_product' product.id %}" class="btn btn-sm btn-edit mr-2">
+                    <i class="fas fa-edit mr-1"></i> Éditer
+                  </a>
+                  <a href="{% url 'dashboard:delete_product' product.id %}" class="btn btn-sm btn-delete"
+                     onclick="return confirm('Supprimer ce produit ? Cette action est irréversible.')">
+                    <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="fas fa-box-open"></i>
+          <h3>Aucun produit publié pour le moment</h3>
+          <p>Commencez par ajouter votre premier produit pour le mettre en vente sur la marketplace.</p>
+          <a href="{% url 'dashboard:add_product' %}" class="btn btn-add-product mt-3">
+            <i class="fas fa-plus"></i> Ajouter mon premier produit
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes produits - Dashboard{% endblock %}
+
 {% block content %}
   <div class="container">
     <h1 class="section-title">Gestion de mes produits</h1>
@@ -63,4 +353,4 @@
       </table>
     </div>
   </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

@@ -1,209 +1,288 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Mon panier - AgriBusiness{% endblock %}
+{% block title %}Mon Panier - AgriBusiness{% endblock %}
 
 {% block extra_css %}
-  <style>
-    .cart-header {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
+<!-- Même CSS que précédemment (je le garde identique pour cohérence) -->
+<style>
+  /* En-tête du panier */
+  .cart-header {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.05));
+    border-radius: 24px;
+    margin-bottom: 3rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  }
 
+  .cart-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #2e7d32;
+    margin-bottom: 0.8rem;
+  }
+
+  .cart-subtitle {
+    font-size: 1.3rem;
+    color: #4caf50;
+    font-weight: 500;
+  }
+
+  /* Item du panier */
+  .cart-item {
+    background: white;
+    border-radius: 20px;
+    padding: 1.8rem;
+    margin-bottom: 1.8rem;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.07);
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    flex-wrap: wrap;
+    transition: all 0.3s ease;
+  }
+
+  .cart-item:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+  }
+
+  .cart-item-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f8f9fa;
+  }
+
+  .cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cart-item-image .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    color: #4caf50;
+  }
+
+  .cart-item-image .no-image i {
+    font-size: 3.5rem;
+    opacity: 0.7;
+  }
+
+  .cart-item-details {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .cart-item-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 0.5rem;
+  }
+
+  .cart-item-producer {
+    color: #66bb6a;
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+  }
+
+  .cart-item-price {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #2e7d32;
+  }
+
+  .cart-item-subtotal {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #388e3c;
+  }
+
+  /* Contrôles quantité */
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .quantity-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4caf50;
+    color: white;
+    border: none;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .quantity-btn:hover {
+    background: #388e3c;
+    transform: scale(1.1);
+  }
+
+  .quantity-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .quantity-display {
+    font-size: 1.4rem;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+    color: #2e7d32;
+  }
+
+  /* Résumé */
+  .cart-summary {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+    color: white;
+    border-radius: 24px;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(76, 175, 80, 0.3);
+    margin-top: 2rem;
+  }
+
+  .cart-total-label {
+    font-size: 1.4rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+  }
+
+  .cart-total-amount {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-checkout {
+    background: white;
+    color: #2e7d32;
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: 1rem 3rem;
+    border-radius: 50px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+  }
+
+  .btn-checkout:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    background: #f8f9fa;
+  }
+
+  /* Panier vide */
+  .empty-cart {
+    text-align: center;
+    padding: 6rem 2rem;
+    color: #666;
+  }
+
+  .empty-cart i {
+    font-size: 6rem;
+    color: #c8e6c9;
+    margin-bottom: 2rem;
+  }
+
+  .empty-cart h3 {
+    font-size: 2.2rem;
+    color: #4caf50;
+    margin-bottom: 1rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
     .cart-item {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .cart-item img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-
-    .cart-summary {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 2rem;
+      flex-direction: column;
       text-align: center;
     }
-
-    .cart-total {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #d4edda;
+    .cart-item-image {
+      width: 150px;
+      height: 150px;
     }
-  </style>
+    .quantity-controls {
+      justify-content: center;
+    }
+    .cart-header {
+      padding: 2rem 1rem;
+    }
+    .cart-title {
+      font-size: 2.3rem;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="cart-header">
-      <h1 class="section-title">Mon panier</h1>
-      <p>{{ cart.items.count }} article{{ cart.items.count|pluralize }} (Total: €{{ cart.get_total_amount }})</p>
-    </div>
-
-    {% if cart and cart.items.exists %}
-      <div class="cart-items">
-        {% for item in cart.items.all %}
-          <div class="cart-item">
-            {% if item.product.image %}
-              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
-            {% else %}
-              <div style="width: 100px; height: 100px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
-                <i class="fas fa-image text-muted"></i>
-              </div>
-            {% endif %}
-            <div style="flex: 1;">
-              <h4 style="color: white; margin: 0;">{{ item.product.name }}</h4>
-              <p style="color: #a8d5ba; margin: 0.5rem 0;">Par {{ item.product.producer.user.username }}</p>
-              <p style="color: #ccc; margin: 0.5rem 0; font-size: 0.9rem;">{{ item.product.description|truncatewords:10 }}</p>
-            </div>
-            <div style="text-align: right;">
-              <p style="color: white; font-size: 1.3rem; margin: 0;">{{ item.quantity }} × €{{ item.product.price }}</p>
-              <p style="color: #d4edda; font-weight: 600;">€{{ item.get_subtotal }}</p>
-            </div>
-            <div>
-              <a href="#" class="btn btn-sm btn-outline-light" onclick="removeItem({{ item.id }})">Supprimer</a>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-
-      <div class="cart-summary">
-        <p class="cart-total">Total : €{{ cart.get_total_amount }}</p>
-        <a href="{% url 'marketplace:checkout' %}" class="btn btn-success btn-lg rounded-pill px-5 py-3 mt-3">
-          <i class="fas fa-credit-card mr-2"></i> Passer la commande
-        </a>
-      </div>
-    {% else %}
-      <div class="text-center py-5">
-        <i class="fas fa-shopping-cart" style="font-size: 5rem; color: #666; margin-bottom: 2rem;"></i>
-        <h4 style="color: #a8d5ba;">Votre panier est vide</h4>
-        <p style="color: #ccc;">Commencez à explorer nos produits premium.</p>
-        <a href="{% url 'marketplace:product_list' %}" class="btn btn-success btn-lg rounded-pill px-5 mt-3">
-          <i class="fas fa-store mr-2"></i> Découvrir les produits
-        </a>
-      </div>
-    {% endif %}
+<div class="container my-5">
+  <!-- En-tête fixe -->
+  <div class="cart-header">
+    <h1 class="cart-title">Mon Panier</h1>
+    <p class="cart-subtitle" id="cart-summary-text">
+      {% if cart.items.exists %}
+        {{ cart.items.count }} article{{ cart.items.count|pluralize }} • 
+        Total : <strong id="cart-total">€{{ cart.get_total_amount|floatformat:2 }}</strong>
+      {% else %}
+        Votre panier est actuellement vide
+      {% endif %}
+    </p>
   </div>
 
-  <!-- Script pour supprimer item (exemple AJAX) -->
-  <script>
-    function removeItem(itemId) {
-      if (confirm('Supprimer cet article ?')) {
-        fetch(`/cart/remove/${itemId}/`, { method: 'DELETE' })  // À implémenter
-          .then(() => location.reload());
-      }
-    }
-  </script>
-{% endblock %}
-
-
-
-{% comment %} {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Mon panier - AgriBusiness{% endblock %}
-
-{% block extra_css %}
-  <style>
-    .cart-header {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .cart-item {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .cart-item img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-
-    .cart-summary {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .cart-total {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #d4edda;
-    }
-  </style>
-{% endblock %}
-
-{% block content %}
-  <div class="container">
-    <div class="cart-header">
-      <h1 class="section-title">Mon panier</h1>
-      <p>{{ cart.items.count }} article{{ cart.items.count|pluralize }}</p>
-    </div>
-
-    {% if cart.items.exists %}
-      <div class="cart-items">
-        {% for item in cart.items.all %}
-        <div class="cart-item">
-          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
-          <div style="flex: 1;">
-            <h4 style="color: white; margin: 0;">{{ item.product.name }}</h4>
-            <p style="color: #a8d5ba; margin: 0.5rem 0;">{{ item.product.producer.user.username }}</p>
-          </div>
-          <div style="text-align: right;">
-            <p style="color: white; font-size: 1.3rem; margin: 0;">{{ item.quantity }} × {{ item.product.price }} €</p>
-            <p style="color: #d4edda; font-weight: 600;">{{ item.get_subtotal }} €</p>
-          </div>
-          <div>
-            <a href="#" class="btn btn-sm btn-outline-light">Supprimer</a>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <div class="cart-summary">
-        <p class="cart-total">Total : {{ cart.get_total_amount }} €</p>
-        <a href="{% url 'marketplace:checkout' %}" class="btn btn-action btn-lg">
-          Passer la commande
-        </a>
-      </div>
-    {% else %}
-      <div class="text-center py-5">
-        <i class="fas fa-shopping-cart" style="font-size: 5rem; color: #666; margin-bottom: 2rem;"></i>
-        <p style="font-size: 1.5rem; color: #a8d5ba;">Votre panier est vide</p>
-        <a href="{% url 'marketplace:product_list' %}" class="btn btn-action btn-lg mt-3">
-          Découvrir les produits
-        </a>
-      </div>
-    {% endif %}
+  <!-- Liste des items (partial chargé et mis à jour via HTMX) -->
+  <div id="cart-items-container">
+    {% include 'pages/marketplace/partials/cart_items.html' %}
   </div>
-{% endblock %} {% endcomment %}
+
+  <!-- Résumé & Checkout (fixe, mis à jour via HTMX si besoin) -->
+  {% if cart.items.exists %}
+    <div class="cart-summary" id="cart-summary">
+      <p class="cart-total-label">Montant total à payer</p>
+      <div class="cart-total-amount" id="cart-total-amount">€{{ cart.get_total_amount|floatformat:2 }}</div>
+      <a href="{% url 'marketplace:checkout' %}" class="btn btn-checkout">
+        <i class="fas fa-credit-card mr-2"></i> Passer la commande
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Indicateur de chargement global -->
+<div class="htmx-indicator text-center my-4" style="display:none;">
+  <i class="fas fa-spinner fa-spin fa-2x text-success"></i> Mise à jour du panier...
+</div>
+
+<script>
+  // Affiche/masque le spinner pendant les requêtes HTMX
+  document.body.addEventListener('htmx:beforeRequest', () => {
+    document.querySelector('.htmx-indicator').style.display = 'block';
+  });
+  document.body.addEventListener('htmx:afterRequest', () => {
+    document.querySelector('.htmx-indicator').style.display = 'none';
+  });
+
+  // Optionnel : mise à jour du résumé en-tête après chaque modification
+  document.body.addEventListener('htmx:afterSwap', (evt) => {
+    if (evt.target.id === 'cart-items-container') {
+      // Vous pouvez ajouter une petite vue HTMX qui renvoie aussi le total mis à jour
+      // ou simplement recharger la page si c'est plus simple
+      // Ici on suppose que votre vue renvoie aussi le nouveau total via un header ou un partial séparé
+    }
+  });
+</script>
+{% endblock %}
+

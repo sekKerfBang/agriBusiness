@@ -89,12 +89,12 @@
   </section>
 
   <!-- CTA Section : Appel à action pour inscription ou connexion -->
-  <section class="cta-section" style="padding: 4rem 0; background-color: #4CAF50; color: white; text-align: center;">
+  {% comment %} <section class="cta-section" style="padding: 4rem 0; background-color: #4CAF50; color: white; text-align: center;">
     <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Rejoignez AgriBusiness dès aujourd'hui !</h2>
     <p style="font-size: 1.2rem; margin-bottom: 2rem;">Créez un compte gratuit et commencez à échanger.</p>
     <a href="{% url 'utilisateur:register' %}" class="btn btn-light btn-lg" style="padding: 1rem 2rem; border-radius: 5px;">S'inscrire</a>
     <a href="{% url 'utilisateur:login' %}" class="btn btn-outline-light btn-lg ml-2" style="padding: 1rem 2rem; border-radius: 5px;">Se connecter</a>
-  </section>
+  </section> {% endcomment %}
 
 {% endblock %}
 

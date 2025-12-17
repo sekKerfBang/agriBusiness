@@ -201,3 +201,8 @@ DEFAULT_FROM_EMAIL = 'noreply@agribusiness.com'  # Expéditeur des mails reset
 
 # URLs pour reset (optionnel, mais utile)
 PASSWORD_RESET_TIMEOUT = 259200  # 
+
+#Payment 
+# settings.py
+STRIPE_PUBLIC_KEY = 'pk_test_51VotreClePublique'
+STRIPE_SECRET_KEY = 'sk_test_51VotreCleSecrete'

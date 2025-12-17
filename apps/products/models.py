@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from apps.utilisateur.models import  ProducerProfile  # Import Producer pour relation producer (évite circular si besoin)
+from apps.utilisateur.models import  ProducerProfile 
+from django.contrib import admin
 
 class Category(models.Model):
     """Catégories de produits (Fruits, Légumes, etc.)"""
@@ -56,8 +57,14 @@ class Product(models.Model):
             models.Index(fields=['price']),
         ]
 
+    @property
+    @admin.display(boolean=True, description='Disponible')
+    def is_available(self):
+        """Retourne True si le produit est actif ET en stock"""
+        return self.is_active and self.stock > 0
+    
     def __str__(self):
-        return f"{self.name} - {self.producer.farm_name}"  # Assure-toi que 'farm_name' existe dans ProducerProfile
+        return f"{self.name} - {self.producer.user.username}"  # Assure-toi que 'farm_name' existe dans ProducerProfile
 
     @property
     def is_in_stock(self):
