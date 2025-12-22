@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Commande #{{ order.order_number }} - Dashboard{% endblock %}
+
+{% block extra_css %}
+  <style>
+    :root {
+      --glass: rgba(27, 94, 32, 0.35);
+      --accent: #4CAF50;
+      --light-accent: #81C784;
+      --danger: #C62828;
+      --warning: #FFB300;
+      --info: #2196F3;
+      --text: #FFFFFF;
+      --border: rgba(76, 175, 80, 0.3);
+    }
+
+    .order-detail-header {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border-radius: 28px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    .order-title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--green);
+      margin-bottom: 1rem;
+    }
+
+    .order-meta {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      color: var(--white);
+    }
+
+    .meta-item {
+      display: flex;
+      color:white;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .status-badge-large {
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      min-width: 180px;
+    }
+
+    .items-table {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .items-table th {
+      background: rgba(27, 94, 32, 0.6);
+      color: var(--text);
+      font-weight: 700;
+      padding: 1.5rem;
+    }
+
+    .items-table td {
+      padding: 1.5rem;
+      vertical-align: middle;
+    }
+
+    .product-image-small {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .total-amount {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    @media (max-width: 768px) {
+      .order-meta {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .order-title {
+        font-size: 2.4rem;
+      }
+      .items-table th, .items-table td {
+        padding: 1rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- En-tête commande -->
+  <div class="order-detail-header">
+    <h1 class="order-title">
+      <i class="fas fa-receipt text-success me-3"></i>
+      Commande #{{ order.order_number }}
+    </h1>
+
+    <div class="order-meta">
+      <div class="meta-item">
+        <i class="fas fa-calendar-alt"></i>
+        <span>{{ order.created_at|date:"d/m/Y à H:i" }}</span>
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-user"></i>
+        <span>{{ order.client.get_full_name|default:order.client.username }}</span>
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-clock"></i>
+        <span class="status-badge-large
+          {% if order.status == 'PENDING' %}bg-warning text-dark
+          {% elif order.status == 'DELIVERED' %}bg-success
+          {% elif order.status == 'SHIPPED' %}bg-info
+          {% elif order.status == 'CANCELLED' %}bg-danger
+          {% else %}bg-secondary{% endif %}">
+          {{ order.get_status_display }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Détails des produits -->
+  <div class="items-table">
+    <table class="table table-borderless text-white mb-0">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Nom</th>
+          <th>Quantité</th>
+          <th>Prix unitaire</th>
+          <th>Sous-total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order_items %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-image-small">
+              {% else %}
+                <div class="product-image-small bg-secondary d-flex align-items-center justify-content-center">
+                  <i class="fas fa-seedling text-white-50"></i>
+                </div>
+              {% endif %}
+            </div>
+          </td>
+          <td> <strong>{{ item.product.name }}</strong> </td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.price_at_purchase|floatformat:2 }} €</td>
+          <td><strong>{{ item.get_subtotal|floatformat:2 }} €</strong></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center py-5">Aucun article</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="text-end fw-bold fs-4">Total :</td>
+          <td><span class="total-amount">{{ order.total_amount|floatformat:2 }} €</span></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Bouton retour -->
+  <div class="text-center mt-5">
+    <a href="{% url 'dashboard:orders' %}" class="btn btn-success btn-lg px-5">
+      <i class="fas fa-arrow-left me-2"></i> Retour aux commandes
+    </a>
+  </div>
+</div>
+{% endblock %}

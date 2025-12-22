@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.db.models import Sum, Count, Q
 from django.db.models.functions import TruncMonth
 from apps.products.models import Product
 from apps.orders.models import Order, OrderItem
+
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -111,19 +112,46 @@ class EditProductView(ProductAccessMixin, UpdateView):
 
 
 # Suppression d'un produit
-class DeleteProductView(ProductAccessMixin, DeleteView):
-    model = Product
-    success_url = reverse_lazy('dashboard:products')
-    template_name = 'dashboard/product_confirm_delete.html'  # optionnel, template de confirmation
+from django.views import View
+from django.shortcuts import get_object_or_404, render
 
-    def get_queryset(self):
-        return Product.objects.filter(producer=self.request.user.producer_profile)
+class DeleteProductView(ProductAccessMixin, View):
+    template_name = 'dashboard/product_confirm_delete.html'  # le template de confirmation
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Produit supprimé avec succès.")
-        return super().delete(request, *args, **kwargs)
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, producer=request.user.producer_profile)
+        return render(request, self.template_name, {'object': product})
 
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, producer=request.user.producer_profile)
+        
+        if product.order_items.exists():
+            product.is_active = False
+            product.save()
+            messages.warning(
+                request,
+                f'Le produit "{product.name}" a été désactivé (il a été commandé par des clients). '
+                f'Il n\'est plus visible à la vente, mais conservé pour l\'historique des commandes.'
+            )
+        else:
+            product.delete()
+            messages.success(request, f'Le produit "{product.name}" a été supprimé définitivement.')
+        
+        return redirect('dashboard:products')
+    
+# class DeleteProductView(ProductAccessMixin, DeleteView):
+#     model = Product
+#     success_url = reverse_lazy('dashboard:products')
+#     template_name = 'dashboard/product_confirm_delete.html'  # optionnel, template de confirmation
 
+#     def get_queryset(self):
+#         return Product.objects.filter(producer=self.request.user.producer_profile)
+
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(request, "Produit supprimé avec succès.")
+#         return super().delete(request, *args, **kwargs)
+
+## COMMANDES CLASS
 class OrderManagementView(LoginRequiredMixin, TemplateView):
     """Gestion des commandes reçues"""
     template_name = 'dashboard/orders.html'
@@ -142,6 +170,23 @@ class OrderManagementView(LoginRequiredMixin, TemplateView):
 
         context['orders'] = orders
         return context
+    
+
+class OrderDetailView(ProductAccessMixin, DetailView):
+    model = Order
+    template_name = 'dashboard/orders_detail.html'
+    context_object_name = 'order'
+
+    def get_queryset(self):
+        """Seules les commandes contenant un produit du producteur connecté"""
+        producer = self.request.user.producer_profile
+        return Order.objects.filter(items__product__producer=producer).distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order_items'] = self.object.items.select_related('product').all()
+        return context
+
 
 from django.utils import timezone
 

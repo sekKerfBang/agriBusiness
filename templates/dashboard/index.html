@@ -161,7 +161,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.6rem;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 248, 248, 1);
     }
 
     .trend-up { color: #81C784; }
@@ -401,7 +401,7 @@
                   <tr>
                     <td><strong>{{ product.name }}</strong></td>
                     <td><span class="badge badge-danger" style="font-size: 1rem; padding: 0.6rem 1rem;">{{ product.stock }} unités</span></td>
-                    <td><a href="#" class="btn btn-sm btn-outline-light">Réapprovisionner</a></td>
+                    <td><a href="{% url 'dashboard:add_product' %}" class="btn btn-sm btn-outline-light">Réapprovisionner</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -417,7 +417,13 @@
             <div class="table-responsive">
               <table class="table table-dashboard">
                 <thead>
-                  <tr><th>Commande</th><th>Date</th><th>Client</th><th>Montant</th><th>Statut</th></tr>
+                  <tr>
+                    <th>Commande</th>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {% for order in recent_orders %}
