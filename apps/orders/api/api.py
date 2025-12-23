@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from .models import Order, OrderItem, Cart, CartItem
+from ..models import Order, OrderItem, Cart, CartItem
 from .serializers import OrderSerializer, OrderCreateSerializer, CartSerializer
 from services.payment_service import PaymentService
 from tasks.email_tasks import send_order_confirmation_task
@@ -57,7 +57,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Accès refusé'}, status=status.HTTP_403_FORBIDDEN)
         
         if not order.can_be_cancelled:
-            return Response({'error': 'Commande ne peut pas être annulée'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'la Commande ne peut pas être annulée'}, status=status.HTTP_400_BAD_REQUEST)
         
         order.status = 'CANCELLED'
         order.save()

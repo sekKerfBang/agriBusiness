@@ -64,5 +64,5 @@ class ProducerViewSet(viewsets.ReadOnlyModelViewSet):
         """Récupère les produits d'un producteur"""
         producer = self.get_object()
         products = producer.products.filter(is_active=True)
-        from apps.products.serializers import ProductSerializer
+        from apps.products.api.serializers import ProductSerializer
         return Response(ProductSerializer(products, many=True).data)

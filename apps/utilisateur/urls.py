@@ -18,7 +18,7 @@ urlpatterns = [
         template_name='utilisateur/password_reset_form.html',  # Template global
         email_template_name='utilisateur/password_reset_email.html',  # Mail text
         form_class=CustomPasswordResetForm, # ceci est le formulaire utilisé
-        success_url=reverse_lazy('utilisateur:password_reset_done'), # ceci est la vue à afficher après envoi
+        success_url=reverse_lazy('password_reset_done'), # ceci est la vue à afficher après envoi
         subject_template_name='utilisateur/password_reset_subject.txt'  # Sujet mail
     ), name='password_reset'),
     
@@ -29,7 +29,7 @@ urlpatterns = [
     path('password/reset/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
         template_name='utilisateur/password_reset_confirm.html', # ceci est le template pour réinitialiser le mdp
         form_class=CustomSetPasswordForm,  # ceci est le formulaire utilisé pour réinitialiser le mdp
-        success_url=reverse_lazy('utilisateur:password_reset_complete')
+        success_url=reverse_lazy('password_reset_complete')
     ), name='password_reset_confirm'),
     
     path('password/reset/complete/', auth_views.PasswordResetCompleteView.as_view(
