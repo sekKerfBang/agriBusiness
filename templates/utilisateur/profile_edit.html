@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load profile_tags %}{% block title %}Modifier le Profil de {{ user.username }} | AgriBusiness Pro{% endblock %}{% block extra_css %}
+{% load profile_tags %}
+
+{% block title %}Modifier le Profil de {{ user.username }} | AgriBusiness Pro{% endblock %}
+
+{% block extra_css %}
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -13,172 +17,293 @@
       --text-muted: #A0B0A8;
       --background: rgba(13, 59, 30, 0.1);
       --border: rgba(74, 157, 94, 0.2);
-    }body {
-  background: var(--dark);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-}
+      --success: #4A9D5E;
+      --warning: #D4AF37;
+      --danger: #C53030;
+      --input-focus: rgba(74, 157, 94, 0.15);
+    }
 
-.edit-header {
-  background: var(--primary);
-  margin: -1rem -15px 3rem -15px;
-  padding: 4rem 0;
-  text-align: center;
-}
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
 
-.edit-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text);
-}
+    .edit-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      margin: -1rem -15px 3rem -15px;
+      padding: 5rem 0 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-.edit-subtitle {
-  font-size: 1.2rem;
-  color: var(--text-muted);
-  font-weight: 400;
-}
+    .edit-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+      opacity: 0.5;
+    }
 
-.edit-card {
-  background: var(--background);
-  border-radius: 12px;
-  padding: 3rem;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
+    .edit-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
 
-.form-group {
-  margin-bottom: 2rem;
-}
+    .edit-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
 
-.form-label {
-  display: block;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--green);
-  margin-bottom: 0.75rem;
-}
+    .edit-card {
+      background: var(--background);
+      border-radius: 16px;
+      padding: 3.5rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      backdrop-filter: blur(8px);
+    }
 
-.form-control {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
-  color: var(--text);
-  width: 100%;
-}
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-.form-control:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(74, 157, 94, 0.1);
-  outline: none;
-}
+    .form-group {
+      margin-bottom: 2rem;
+    }
 
-.form-control-textarea {
-  min-height: 150px;
-  resize: vertical;
-}
+    .form-label {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--grid-dark);
+      margin-bottom: 0.75rem;
+    }
 
-.form-check {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-}
+    .form-control {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      color: var(--text);
+      width: 100%;
+      transition: all 0.3s ease;
+    }
 
-.form-check-input {
-  width: 20px;
-  height: 20px;
-  margin-right: 1rem;
-  accent-color: var(--accent);
-}
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--input-focus);
+      outline: none;
+    }
 
-.form-check-label {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text);
-}
+    .form-control-textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
 
-.help-text {
-  display: block;
-  margin-top: 0.5rem;
-  color: var(--#303);
-  font-size: 0.9rem;
-}
+    .form-check {
+      display: flex;
+      align-items: center;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: background 0.3s ease;
+    }
 
-.producer-section {
-  background: rgba(74, 157, 94, 0.05);
-  border-left: 4px solid var(--accent);
-  border-radius: 12px;
-  padding: 3rem;
-  margin-top: 4rem;
-}
+    .form-check:hover {
+      background: rgba(255,255,255,0.02);
+    }
 
-.section-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--green);
-  margin-bottom: 2rem;
-}
+    .form-check-input {
+      width: 20px;
+      height: 20px;
+      margin-right: 1rem;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
 
-.btn-group {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-  margin-top: 4rem;
-}
+    .form-check-label {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+    }
 
-.btn-save {
-  background: var(--accent);
-  border: none;
-  border-radius: 8px;
-  padding: 1.2rem 3rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+    .help-text {
+      display: block;
+      margin-top: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
 
-.btn-save:hover {
-  background: #3E8A50;
-}
+    .error-text {
+      color: var(--danger);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-.btn-cancel {
-  background: transparent;
-  border: 2px solid var(--neutral);
-  border-radius: 8px;
-  padding: 1.2rem 3rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--neutral);
-  transition: all 0.3s ease;
-}
+    .producer-section {
+      background: rgba(74, 157, 94, 0.08);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-top: 3rem;
+    }
 
-.btn-cancel:hover {
-  border-color: var(--text);
-  color: var(--text);
-}
+    .security-section {
+      background: rgba(212, 175, 55, 0.08);
+      border-left: 4px solid var(--warning);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-top: 3rem;
+    }
 
-.error-text {
-  color: var(--danger);
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
+    .image-preview-container {
+      text-align: center;
+      margin-top: 1rem;
+    }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .edit-title { font-size: 2.2rem; }
-  .edit-card { padding: 2.5rem; }
-}
+    .image-preview {
+      max-width: 100%;
+      max-height: 250px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      display: none;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
-@media (max-width: 768px) {
-  .edit-title { font-size: 2rem; }
-  .edit-card { padding: 2rem; }
-  .btn-group { flex-direction: column; gap: 1.5rem; }
-}  </style>
-{% endblock %}{% block content %}<div class="edit-header">
+    .btn-group {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 3.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-save {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 1.2rem 3rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(74, 157, 94, 0.2);
+    }
+
+    .btn-save:hover {
+      background: #3E8A50;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(74, 157, 94, 0.3);
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 2px solid var(--neutral);
+      border-radius: 8px;
+      padding: 1.2rem 3rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--neutral);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text);
+      color: var(--text);
+      transform: translateY(-3px);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .edit-title { font-size: 2.2rem; }
+      .edit-card { padding: 2.5rem; }
+    }
+
+    @media (max-width: 768px) {
+      .edit-title { font-size: 2rem; }
+      .edit-card { padding: 2rem; }
+      .btn-group { flex-direction: column; gap: 1.25rem; }
+      .btn-save, .btn-cancel { width: 100%; padding: 1.2rem; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-header">
+  <div class="container">
+    <h1 class="edit-title">Modifier mon profil</h1>
+  </div>
+</div>
+
+<div class="container my-5">
+  <div class="edit-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col-lg-6">
+          <h3 class="section-title mb-4"><i class="fas fa-user"></i> Informations personnelles</h3>
+
+          {% for field in user_form %}
+            <div class="form-group">
+              <label class="form-label">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<small class="text-muted d-block mt-1">{{ field.help_text }}</small>{% endif %}
+              {% if field.errors %}<div class="text-danger mt-1">{{ field.errors }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="col-lg-6">
+          {% if producer_form %}
+          <div class="producer-section">
+            <h3 class="section-title mb-4"><i class="fas fa-tractor"></i> Profil Producteur</h3>
+
+            {% for field in producer_form %}
+              <div class="form-group">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small class="text-muted d-block mt-1">{{ field.help_text }}</small>{% endif %}
+                {% if field.errors %}<div class="text-danger mt-1">{{ field.errors }}</div>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="text-center mt-5">
+        <button type="submit" class="btn btn-save mx-2">Enregistrer</button>
+        <a href="{% url 'utilisateur:profile' %}" class="btn btn-cancel mx-2">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% comment %} <div class="edit-header">
   <div class="container">
     <h1 class="edit-title">Modifier le Profil</h1>
     <p class="edit-subtitle">Mettez à jour vos informations professionnelles</p>
@@ -190,104 +315,262 @@
     <form method="post" enctype="multipart/form-data" id="profileForm">
       {% csrf_token %}
 
-  <!-- INFORMATIONS PERSONNELLES -->
-  <div class="row">
-    <div class="col-lg-6">
-      <h3 class="section-title">
-        <i class="fas fa-user"></i> Identité et Coordonnées
-      </h3>
+      <div class="row">
+        <!-- INFORMATIONS PERSONNELLES -->
+        <div class="col-lg-6">
+          <h3 class="section-title">
+            <i class="fas fa-user"></i> Identité et Coordonnées
+          </h3>
 
-      {% for field in form.visible_fields %}
-        {% if field.name in 'username,phone,location,email' %}
           <div class="form-group">
-            <label for="{{ field.id_for_label }}" class="form-label">
-              {{ field.label }}
+            <label for="{{ user_form.username.id_for_label }}" class="form-label">
+              {{ user_form.username.label }}
             </label>
-            {{ field }}
-            {% if field.help_text %}
-              <small class="help-text">{{ field.help_text }}</small>
+            {{ user_form.username }}
+            {% if user_form.username.help_text %}
+              <small class="help-text">{{ user_form.username.help_text }}</small>
             {% endif %}
-            {% if field.errors %}
+            {% if user_form.username.errors %}
               <div class="error-text">
-                <i class="fas fa-exclamation-circle"></i> {{ field.errors.0 }}
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.username.errors.0 }}
               </div>
             {% endif %}
           </div>
-        {% endif %}
-      {% endfor %}
-    </div>
 
-    <div class="col-lg-6">
-      <h3 class="section-title">
-        <i class="fas fa-lock"></i> Sécurité
-      </h3>
+          <div class="form-group">
+            <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
+              {{ user_form.first_name.label }}
+            </label>
+            {{ user_form.first_name }}
+            {% if user_form.first_name.help_text %}
+              <small class="help-text">{{ user_form.first_name.help_text }}</small>
+            {% endif %}
+            {% if user_form.first_name.errors %}
+              <div class="error-text">
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.first_name.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
 
-      <div class="form-group">
-        <label for="id_password" class="form-label">
-          Nouveau mot de passe
-        </label>
-        <input type="password" name="password" id="id_password" class="form-control" placeholder="Laissez vide pour conserver l'actuel">
-        <small class="help-text">Au moins 8 caractères, incluant une majuscule, un chiffre et un symbole</small>
+          <div class="form-group">
+            <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
+              {{ user_form.last_name.label }}
+            </label>
+            {{ user_form.last_name }}
+            {% if user_form.last_name.help_text %}
+              <small class="help-text">{{ user_form.last_name.help_text }}</small>
+            {% endif %}
+            {% if user_form.last_name.errors %}
+              <div class="error-text">
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.last_name.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ user_form.email.id_for_label }}" class="form-label">
+              {{ user_form.email.label }}
+            </label>
+            {{ user_form.email }}
+            {% if user_form.email.help_text %}
+              <small class="help-text">{{ user_form.email.help_text }}</small>
+            {% endif %}
+            {% if user_form.email.errors %}
+              <div class="error-text">
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.email.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ user_form.phone.id_for_label }}" class="form-label">
+              {{ user_form.phone.label }}
+            </label>
+            {{ user_form.phone }}
+            {% if user_form.phone.help_text %}
+              <small class="help-text">{{ user_form.phone.help_text }}</small>
+            {% endif %}
+            {% if user_form.phone.errors %}
+              <div class="error-text">
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.phone.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ user_form.location.id_for_label }}" class="form-label">
+              {{ user_form.location.label }}
+            </label>
+            {{ user_form.location }}
+            {% if user_form.location.help_text %}
+              <small class="help-text">{{ user_form.location.help_text }}</small>
+            {% endif %}
+            {% if user_form.location.errors %}
+              <div class="error-text">
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.location.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if user.is_superuser %}
+            <div class="form-group">
+              <label for="{{ user_form.role.id_for_label }}" class="form-label">
+                {{ user_form.role.label }}
+              </label>
+              {{ user_form.role }}
+              {% if user_form.role.help_text %}
+                <small class="help-text">{{ user_form.role.help_text }}</small>
+              {% endif %}
+              {% if user_form.role.errors %}
+                <div class="error-text">
+                  <i class="fas fa-exclamation-circle"></i> {{ user_form.role.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="form-group">
+            <label for="{{ user_form.image.id_for_label }}" class="form-label">
+              {{ user_form.image.label }} (optionnel)
+            </label>
+            {{ user_form.image }}
+            {% if user_form.image.help_text %}
+              <small class="help-text">{{ user_form.image.help_text }}</small>
+            {% endif %}
+            {% if user_form.image.errors %}
+              <div class="error-text">
+                <i class="fas fa-exclamation-circle"></i> {{ user_form.image.errors.0 }}
+              </div>
+            {% endif %}
+            <div class="image-preview-container">
+              {% if user.image %}
+                <img id="current-image" src="{{ user.image.url }}" alt="Image actuelle" class="image-preview" style="display: block;">
+              {% endif %}
+              <img id="image-preview" class="image-preview" alt="Prévisualisation de la nouvelle image">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION SÉCURITÉ -->
+        <div class="col-lg-6">
+          <h3 class="section-title">
+            <i class="fas fa-lock"></i>  Sécurité et Mot de Passe
+          </h3>
+          <div class="security-section">
+            <h3 class="section-title">
+              
+            </h3>
+
+            <div class="form-group">
+              <label for="id_password" class="form-label">
+                Nouveau mot de passe (optionnel)
+              </label>
+              <input type="password" name="password" id="id_password" class="form-control" placeholder="Laissez vide pour conserver l'actuel">
+              <small class="help-text">Au moins 8 caractères, incluant une majuscule, un chiffre et un symbole</small>
+            </div>
+
+            <div class="form-group">
+              <label for="id_confirm_password" class="form-label">
+                Confirmer le nouveau mot de passe
+              </label>
+              <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" placeholder="Répétez le nouveau mot de passe">
+            </div>
+          </div>
+
+          <!-- PROFIL PRODUCTEUR -->
+          {% if user.is_entreprise and producer_form %}
+            <div class="producer-section">
+              <h3 class="section-title">
+                <i class="fas fa-tractor"></i> Profil Producteur
+              </h3>
+
+              <div class="form-group">
+                <div class="form-check">
+                  {{ producer_form.is_organic }}
+                  <label for="{{ producer_form.is_organic.id_for_label }}" class="form-check-label">
+                    Certification Agriculture Biologique
+                  </label>
+                </div>
+                {% if producer_form.is_organic.help_text %}
+                  <small class="help-text">{{ producer_form.is_organic.help_text }}</small>
+                {% endif %}
+                {% if producer_form.is_organic.errors %}
+                  <div class="error-text">
+                    <i class="fas fa-exclamation-circle"></i> {{ producer_form.is_organic.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ producer_form.description.id_for_label }}" class="form-label">
+                  Description de l'exploitation
+                </label>
+                {{ producer_form.description }}
+                {% if producer_form.description.help_text %}
+                  <small class="help-text">{{ producer_form.description.help_text }}</small>
+                {% endif %}
+                {% if producer_form.description.errors %}
+                  <div class="error-text">
+                    <i class="fas fa-exclamation-circle"></i> {{ producer_form.description.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ producer_form.certifications.id_for_label }}" class="form-label">
+                  Autres certifications
+                </label>
+                {{ producer_form.certifications }}
+                {% if producer_form.certifications.help_text %}
+                  <small class="help-text">{{ producer_form.certifications.help_text }}</small>
+                {% endif %}
+                {% if producer_form.certifications.errors %}
+                  <div class="error-text">
+                    <i class="fas fa-exclamation-circle"></i> {{ producer_form.certifications.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ producer_form.image.id_for_label }}" class="form-label">
+                  Image du profil producteur (optionnel)
+                </label>
+                {{ producer_form.image }}
+                {% if producer_form.image.help_text %}
+                  <small class="help-text">{{ producer_form.image.help_text }}</small>
+                {% endif %}
+                {% if producer_form.image.errors %}
+                  <div class="error-text">
+                    <i class="fas fa-exclamation-circle"></i> {{ producer_form.image.errors.0 }}
+                  </div>
+                {% endif %}
+                <div class="image-preview-container">
+                  {% if producer_profile.image %}
+                    <img id="current-producer-image" src="{{ producer_profile.image.url }}" alt="Image actuelle du producteur" class="image-preview" style="display: block;">
+                  {% endif %}
+                  <img id="producer-image-preview" class="image-preview" alt="Prévisualisation de la nouvelle image">
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="id_confirm_password" class="form-label">
-          Confirmer le mot de passe
-        </label>
-        <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" placeholder="Répétez le nouveau mot de passe">
+      <!-- ACTIONS -->
+      <div class="btn-group">
+        <button type="submit" class="btn-save">
+          Enregistrer les modifications
+        </button>
+        <a href="{% url 'utilisateur:profile' %}" class="btn-cancel">
+          Annuler
+        </a>
       </div>
-    </div>
+    </form>
   </div>
-
-  <!-- PROFIL PRODUCTEUR -->
-  {% if user.is_entreprise %}
-  <div class="producer-section">
-    <h3 class="section-title">
-      <i class="fas fa-tractor"></i> Profil Producteur
-    </h3>
-
-    <div class="form-group">
-      <div class="form-check">
-        {{ form.is_organic }}
-        <label for="{{ form.is_organic.id_for_label }}" class="form-check-label">
-          Certification Agriculture Biologique
-        </label>
-      </div>
-      <small class="help-text">Sélectionnez si votre exploitation est certifiée AB</small>
-    </div>
-
-    <div class="form-group">
-      <label for="{{ form.description.id_for_label }}" class="form-label">
-        Description de l'exploitation
-      </label>
-      {{ form.description }}
-      <small class="help-text">Présentez votre exploitation, vos méthodes et vos valeurs</small>
-    </div>
-
-    <div class="form-group">
-      <label for="{{ form.certifications.id_for_label }}" class="form-label">
-        Autres certifications
-      </label>
-      {{ form.certifications }}
-      <small class="help-text">Exemples : AOP, IGP, HVE, Label Rouge</small>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- ACTIONS -->
-  <div class="btn-group">
-    <button type="submit" class="btn-save">
-      Enregistrer les modifications
-    </button>
-    <a href="{% url 'utilisateur:profile' %}" class="btn-cancel">
-      Annuler
-    </a>
-  </div>
-</form>  </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Toast de succès -->
-<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; bottom: 1rem; right: 1rem; background: var(--accent); color: var(--text); border-radius: 8px; padding: 1rem 1.5rem; min-width: 300px; opacity: 0; transition: opacity 0.3s ease;">
+<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; bottom: 1rem; right: 1rem; background: var(--success); color: var(--text); border-radius: 8px; padding: 1rem 1.5rem; min-width: 300px; opacity: 0; transition: opacity 0.3s ease;">
   <div class="toast-body">
     <strong>Profil mis à jour</strong>
     <p>Vos modifications ont été enregistrées.</p>
@@ -299,526 +582,79 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('profileForm');
-      const toast = document.querySelector('.toast');  // Validation basique
-  form.addEventListener('submit', function(e) {
-    const password = document.getElementById('id_password').value;
-    const confirmPassword = document.getElementById('id_confirm_password').value;
+      const toast = document.querySelector('.toast');
 
-    if (password && password !== confirmPassword) {
-      e.preventDefault();
-      alert('Les mots de passe ne correspondent pas.');
-      return;
-    }
-
-    // Afficher toast (simulé)
-    toast.style.opacity = '1';
-    setTimeout(() => {
-      toast.style.opacity = '0';
-    }, 3000);
-  });
-
-  // Compteur pour textareas
-  const textareas = form.querySelectorAll('textarea');
-  textareas.forEach(ta => {
-    const counter = document.createElement('small');
-    counter.className = 'help-text';
-    ta.parentNode.appendChild(counter);
-    ta.addEventListener('input', () => {
-      counter.textContent = `${ta.value.length} caractères`;
-    });
-    counter.textContent = `${ta.value.length} caractères`;
-  });
-});  </script>
-{% endblock %}
-
-
-
-
-
-
-{% comment %} {% extends 'base.html' %}
-{% load static %}
-{% load profile_tags %}
-
-{% block title %}Éditer {{ user.username }} | AgriBusiness Pro{% endblock %}
-
-{% block extra_css %}
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #0D3B1E;
-      --secondary: #2D5F3F;
-      --accent: #4A9D5E;
-      --gold: #D4AF37;
-      --danger: #C92A2A;
-      --dark: #0A0F0C;
-      --text: #FFFFFF;
-      --text-muted: #A0B0A8;
-      --glass: rgba(13, 59, 30, 0.4);
-    }
-
-    body {
-      background: radial-gradient(ellipse at center, var(--dark) 0%, #000000 100%);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-    }
-
-    .edit-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      margin: -2rem -15px 5rem -15px;
-      padding: 6rem 0 5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .edit-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 4rem;
-      font-weight: 900;
-      color: var(--text);
-      text-shadow: 0 5px 20px rgba(0,0,0,0.7);
-    }
-
-    .edit-subtitle {
-      font-size: 1.4rem;
-      color: var(--text-muted);
-      font-weight: 300;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .edit-card {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-radius: 30px;
-      padding: 5rem;
-      border: 1px solid rgba(74, 157, 94, 0.3);
-      box-shadow: 0 25px 80px rgba(0,0,0,0.6);
-      margin-bottom: 4rem;
-    }
-
-    /* ====== CHAMPS PREMIUM ====== */
-    .form-group {
-      margin-bottom: 4rem;
-      position: relative;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--green);
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      position: relative;
-      padding-left: 2rem;
-    }
-
-    .form-label::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-
-    .form-control {
-      background: rgba(0,0,0,0.4);
-      border: 2px solid rgba(74, 157, 94, 0.4);
-      border-radius: 14px;
-      padding: 1.5rem 2rem;
-      font-size: 1.3rem;
-      color: var(--text);
-      font-weight: 500;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      width: 100%;
-    }
-
-    .form-control:focus {
-      background: rgba(239, 233, 233, 0.94);
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(74, 157, 94, 0.3), 0 8px 30px rgba(74, 157, 94, 0.4);
-      outline: none;
-      transform: translateY(-5px);
-    }
-
-    .form-control-textarea {
-      min-height: 200px;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    /* Checkbox luxe */
-    .form-check {
-      padding: 2rem;
-      background: var(--glass);
-      border-radius: 14px;
-      margin-bottom: 3rem;
-      border: 1px solid rgba(74, 157, 94, 0.2);
-      transition: all 0.3s ease;
-    }
-
-    .form-check:hover {
-      border-color: var(--accent);
-      transform: translateX(15px);
-    }
-
-    .form-check-input {
-      width: 24px;
-      height: 24px;
-      margin-right: 1.5rem;
-      cursor: pointer;
-      accent-color: var(--white);
-    }
-
-    .form-check-label {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: var(--white);
-      cursor: pointer;
-    }
-
-    .help-text {
-      display: block;
-      margin-top: 1rem;
-      color: var(--white);
-      font-size: 1.1rem;
-      font-style: italic;
-      padding-left: 2rem;
-      position: relative;
-    }
-
-    .help-text::before {
-      content: '💡';
-      position: absolute;
-      left: 0;
-    }
-
-    /* Section producteur */
-    .producer-section {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(74, 157, 94, 0.1) 100%);
-      border-left: 6px solid var(--gold);
-      border-radius: 20px;
-      padding: 4rem;
-      margin-top: 6rem;
-      position: relative;
-    }
-
-    .producer-section::before {
-      content: '✦ PRODUCTEUR ✦';
-      position: absolute;
-      top: -18px;
-      left: 2rem;
-      background: var(--gold);
-      color: var(--dark);
-      padding: 0.8rem 2rem;
-      border-radius: 50px;
-      font-weight: 800;
-      font-size: 0.9rem;
-      letter-spacing: 2px;
-    }
-
-    .section-title {
-      color: var(--green);
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem;
-      font-weight: 900;
-      margin-bottom: 3rem;
-    }
-
-    /* Boutons */
-    .btn-group {
-      display: flex;
-      gap: 3rem;
-      justify-content: center;
-      margin-top: 6rem;
-      flex-wrap: wrap;
-    }
-
-    .btn-save {
-      background: linear-gradient(135deg, var(--accent), var(--secondary), var(--accent));
-      background-size: 200% 200%;
-      border: none;
-      border-radius: 18px;
-      padding: 1.8rem 4rem;
-      font-weight: 900;
-      font-size: 1.4rem;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.5s ease;
-      box-shadow: 0 15px 40px rgba(74, 157, 94, 0.6);
-      letter-spacing: 1px;
-      min-width: 280px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-save:hover {
-      background-position: 100% 100%;
-      transform: translateY(-8px) scale(1.05);
-      box-shadow: 0 20px 50px rgba(74, 157, 94, 0.8);
-    }
-
-    .btn-save::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: 0.6s;
-    }
-
-    .btn-save:hover::before {
-      left: 100%;
-    }
-
-    .btn-cancel {
-      background: transparent;
-      border: 3px solid var(--text-muted);
-      border-radius: 18px;
-      padding: 1.8rem 4rem;
-      font-weight: 900;
-      font-size: 1.4rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.4s ease;
-      min-width: 280px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-    }
-
-    .btn-cancel:hover {
-      border-color: var(--text);
-      color: var(--text);
-      background: rgba(255,255,255,0.05);
-      transform: translateY(-3px);
-    }
-
-    /* Animations */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(50px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-in {
-      animation: fadeInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    .form-group:nth-child(1) { animation-delay: 0.1s; }
-    .form-group:nth-child(2) { animation-delay: 0.2s; }
-    .form-group:nth-child(3) { animation-delay: 0.3s; }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-      .edit-title { font-size: 3.5rem; }
-      .edit-card { padding: 3.5rem; }
-      .btn-group { flex-direction: column; align-items: center; }
-    }
-
-    @media (max-width: 768px) {
-      .edit-title { font-size: 2.8rem; }
-      .edit-card { padding: 2.5rem; }
-      .form-group { margin-bottom: 3rem; }
-      .producer-section { padding: 2.5rem; margin-top: 4rem; }
-      .btn-group { gap: 2rem; margin-top: 4rem; }
-    }
-  </style>
-{% endblock %}
-
-{% block content %}
-<div class="edit-header">
-  <div class="container text-center">
-    <h1 class="edit-title animate-in">Éditer Profil</h1>
-    <p class="edit-subtitle animate-in">Personnalisez votre identité professionnelle</p>
-  </div>
-</div>
-
-<div class="container">
-  <div class="edit-card">
-    <form method="post" enctype="multipart/form-data" id="profileForm">
-      {% csrf_token %}
-      
-      <!-- INFORMATIONS PERSONNELLES -->
-      <div class="row">
-        <div class="col-lg-6">
-          <h3 class="section-title animate-in">
-            <i class="fas fa-user-circle"></i> Identité
-          </h3>
-
-          {% for field in form.visible_fields %}
-            {% if field.name in 'phone,location,email' %}
-              <div class="form-group animate-in">
-                <label for="{{ field.id_for_label }}" class="form-label">
-                  <i class="fas fa-{{ field|get_icon }}"></i> {{ field.label }}
-                </label>
-                {{ field }}
-                {% if field.help_text %}
-                  <small class="help-text">{{ field.help_text }}</small>
-                {% endif %}
-                {% if field.errors %}
-                  <div class="error-text">
-                    <i class="fas fa-exclamation-circle"></i> {{ field.errors.0 }}
-                  </div>
-                {% endif %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-
-        <div class="col-lg-6">
-          <h3 class="section-title animate-in">
-            <i class="fas fa-shield-alt"></i> Sécurité
-          </h3>
-
-          <!-- Password fields (manually added or loop through) -->
-          <div class="form-group animate-in">
-            <label for="id_password" class="form-label">
-              <i class="fas fa-key"></i> Nouveau mot de passe
-            </label>
-            <input type="password" name="password" id="id_password" class="form-control" placeholder="Laissez vide pour conserver">
-            <small class="help-text">8+ caractères, majuscule, chiffre et symbole</small>
-          </div>
-
-          <div class="form-group animate-in">
-            <label for="id_confirm_password" class="form-label">
-              <i class="fas fa-key"></i> Confirmer mot de passe
-            </label>
-            <input type="password" name="confirm_password" id="id_confirm_password" class="form-control">
-          </div>
-        </div>
-      </div>
-
-      <hr class="section-divider">
-
-      <!-- PROFIL PRODUCTEUR -->
-      {% if user.is_entreprise %}
-      <div class="producer-section animate-in">
-        <h3 class="section-title">
-          <i class="fas fa-tractor"></i> Profil Producteur
-        </h3>
-
-        <div class="form-group">
-          <div class="form-check">
-            {{ form.is_organic }}
-            <label for="{{ form.is_organic.id_for_label }}" class="form-check-label">
-              <i class="fas fa-leaf"></i> Certification Agriculture Biologique
-            </label>
-            <small class="help-text">Cochez si votre exploitation est certifiée AB</small>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="{{ form.description.id_for_label }}" class="form-label">
-            <i class="fas fa-align-left"></i> Description de l'exploitation
-          </label>
-          {{ form.description }}
-          <small class="help-text">Présentez votre histoire, vos valeurs et méthodes</small>
-        </div>
-
-        <div class="form-group">
-          <label for="{{ form.certifications.id_for_label }}" class="form-label">
-            <i class="fas fa-certificate"></i> Autres certifications
-          </label>
-          {{ form.certifications }}
-          <small class="help-text">AOP, IGP, Label Rouge, etc.</small>
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- ACTIONS -->
-      <div class="btn-group animate-in">
-        <button type="submit" class="btn-save">
-          <i class="fas fa-save"></i> Enregistrer les modifications
-        </button>
-        <a href="{% url 'utilisateur:profile' %}" class="btn-cancel">
-          <i class="fas fa-times"></i> Annuler
-        </a>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Toast de succès -->
-<div class="toast" role="alert" style="position: fixed; bottom: 2rem; right: 2rem; background: var(--accent); color: white; border-radius: 15px; padding: 1.5rem 2rem; min-width: 350px; opacity: 0; transform: translateY(100px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999;">
-  <div class="toast-body" style="display: flex; align-items: center; gap: 1rem;">
-    <i class="fas fa-check-circle" style="font-size: 2rem;"></i>
-    <div>
-      <strong>Profil mis à jour !</strong>
-      <div style="font-size: 0.9rem; opacity: 0.9;">Vos modifications ont été sauvegardées</div>
-    </div>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-  <script>
-    // Features premium :
-    // 1. Validation en temps réel
-    // 2. Animation au scroll
-    // 3. Toast de succès
-    // 4. Character counter
-    
-    document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('profileForm');
-      const inputs = form.querySelectorAll('.form-control');
-      
-      // Validation live
-      inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-          if (this.value.trim()) {
-            this.classList.add('is-valid');
-            this.classList.remove('is-invalid');
-          } else {
-            this.classList.remove('is-valid');
-          }
-        });
-        
-        // Focus premium
-        input.addEventListener('focus', function() {
-          this.parentElement.style.transform = 'scale(1.03)';
-          this.parentElement.style.zIndex = '10';
-        });
-        
-        input.addEventListener('blur', function() {
-          this.parentElement.style.transform = '';
-          this.parentElement.style.zIndex = '';
-        });
-      });
-
-      // Submit with toast
+      // Validation mot de passe
       form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Remove in production
-        
-        const toast = document.querySelector('.toast');
+        const password = document.getElementById('id_password').value;
+        const confirmPassword = document.getElementById('id_confirm_password').value;
+
+        if (password && password !== confirmPassword) {
+          e.preventDefault();
+          alert('Les mots de passe ne correspondent pas.');
+          return;
+        }
+
+        // Afficher toast (simulé)
         toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
-        
         setTimeout(() => {
           toast.style.opacity = '0';
-          toast.style.transform = 'translateY(100px)';
-        }, 4000);
+        }, 3000);
       });
-      
-      // Character counter
-      const textareas = document.querySelectorAll('.form-control-textarea');
+
+      // Compteur pour textareas
+      const textareas = form.querySelectorAll('textarea');
       textareas.forEach(ta => {
-        const counter = document.createElement('div');
-        counter.className = 'char-counter';
-        counter.style.cssText = 'text-align: right; color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; font-weight: 500;';
+        const counter = document.createElement('small');
+        counter.className = 'help-text';
         ta.parentNode.appendChild(counter);
-        
-        ta.addEventListener('input', function() {
-          counter.textContent = `${this.value.length} caractères`;
+        ta.addEventListener('input', () => {
+          counter.textContent = `${ta.value.length} caractères`;
         });
+        counter.textContent = `${ta.value.length} caractères`;
       });
+
+      // Prévisualisation image utilisateur
+      const userImageInput = document.querySelector('input[name="image"]');
+      const userImagePreview = document.getElementById('image-preview');
+
+      if (userImageInput && userImagePreview) {
+        userImageInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              userImagePreview.src = e.target.result;
+              userImagePreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+          } else {
+            userImagePreview.style.display = 'none';
+          }
+        });
+      }
+
+      // Prévisualisation image producteur (si applicable)
+      const producerImageInput = document.querySelector('input[name="producer_image"]');
+      const producerImagePreview = document.getElementById('producer-image-preview');
+
+      if (producerImageInput && producerImagePreview) {
+        producerImageInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              producerImagePreview.src = e.target.result;
+              producerImagePreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+          } else {
+            producerImagePreview.style.display = 'none';
+          }
+        });
+      }
     });
   </script>
-{% endblock %} {% endcomment %}
+{% endblock %}
+
+

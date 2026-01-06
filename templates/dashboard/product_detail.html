@@ -1,0 +1,208 @@
+{# templates/marketplace/product_detail.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Détails du Produit{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .product-detail-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .product-image-main {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .product-info {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .product-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      margin-bottom: 1rem;
+    }
+
+    .product-price {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--secondary-green);
+      margin-bottom: 1.5rem;
+    }
+
+    .product-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-dark);
+      margin-bottom: 2rem;
+    }
+
+    .product-meta {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-add-cart {
+      background: var(--secondary-green);
+      color: white;
+      font-weight: 600;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(76,175,80,0.2);
+    }
+
+    .btn-add-cart:hover {
+      background: var(--primary-green);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(46,125,50,0.25);
+    }
+
+    .producer-section {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: var(--light-sage);
+      border-radius: 16px;
+    }
+
+    .producer-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--primary-green);
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .product-detail-container {
+        padding: 1rem;
+      }
+
+      .product-info {
+        padding: 1.5rem;
+      }
+
+      .product-title {
+        font-size: 2rem;
+      }
+
+      .product-price {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container product-detail-container">
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image-main img-fluid">
+        {% else %}
+          <img src="{% static 'marketplace/images/placeholder/product.jpg' %}" alt="{{ product.name }}" class="product-image-main img-fluid">
+        {% endif %}
+      </div>
+      <div class="col-lg-6">
+        <div class="product-info">
+          <h1 class="product-title">{{ product.name }}</h1>
+          <p class="product-price">{{ product.price }} GNF / {{ product.unit }}</p>
+          <p class="product-description">{{ product.description|default:"Aucune description disponible." }}</p>
+          
+          <div class="product-meta">
+            <div class="meta-item">
+              <i class="fas fa-box me-1 text-muted"></i>
+              Stock: {{ product.stock }} disponible
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-eye me-1 text-muted"></i>
+              Vues: {{ product.view_count }}
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-tags me-1 text-muted"></i>
+              Catégorie: {{ product.category.name }}
+            </div>
+          </div>
+         <!-- Bouton Ajouter au panier — Conditionnel avec redirection propre -->
+          <div class="mt-auto">
+            {% if user.is_authenticated %}
+              <button class="btn btn-success w-100 rounded-pill fw-bold py-4 btn-add-cart shadow-lg"
+                      hx-post="{% url 'marketplace:add_to_cart' product.id %}"
+                      hx-target="closest main"
+                      hx-swap="beforeend"
+                      hx-indicator="#global-spinner"
+                      hx-on::after-request="
+                        const btn = this;
+                        btn.innerHTML = '<i class=\\'fas fa-check me-2\\'></i> Ajouté au panier !';
+                        btn.disabled = true;
+                        btn.classList.replace('btn-success', 'btn-outline-success');
+
+                        setTimeout(() => {
+                          btn.innerHTML = '<i class=\\'fas fa-cart-plus me-2\\'></i> Ajouter au panier';
+                          btn.disabled = false;
+                          btn.classList.replace('btn-outline-success', 'btn-success');
+                        }, 2500);
+                      ">
+                <i class="fas fa-cart-plus me-2"></i> Ajouter au panier
+              </button>
+            {% else %}
+              <div class="text-center py-5 px-4 bg-light rounded-4 border border-success border-dashed">
+                <i class="fas fa-lock text-success mb-4" style="font-size: 4rem; opacity: 0.7;"></i>
+                <h4 class="text-success mb-3">Connectez-vous pour acheter</h4>
+                <p class="text-muted mb-4">
+                  Accédez à votre panier et passez une commande en toute sécurité
+                </p>
+                <div class="d-grid gap-3">
+                  <a href="{% url 'utilisateur:login' %}?next={{ request.path }}"
+                    class="btn btn-outline-success btn-lg rounded-pill py-3 mb-3 fw-bold">
+                    <i class="fas fa-sign-in-alt me-2"></i> Me connecter
+                  </a>
+                  <a href="{% url 'utilisateur:register' %}?next={{ request.path }}"
+                    class="btn btn-success btn-lg rounded-pill py-3 fw-bold shadow">
+                    <i class="fas fa-user-plus me-2"></i> Créer un compte gratuit
+                  </a>
+                </div>
+                <small class="text-muted d-block mt-4">
+                  <i class="fas fa-shield-alt me-1"></i> Paiement sécurisé • Livraison garantie
+                </small>
+              </div>
+            {% endif %}
+          </div>
+         
+        </div>
+      </div>
+    </div>
+
+    <div class="producer-section">
+      <h2 class="producer-title">Producteur: {{ product.producer.user.username }}</h2>
+      <p>{{ product.producer.description|default:"Aucune information sur le producteur." }}</p>
+      <div class="d-flex gap-3">
+        {% if product.producer.is_organic %}
+          <span class="badge bg-success"><i class="fas fa-leaf me-1"></i> Bio</span>
+        {% endif %}
+        {% if product.producer.certifications %}
+          <span class="badge bg-info"><i class="fas fa-certificate me-1"></i> {{ product.producer.certifications }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

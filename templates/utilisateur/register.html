@@ -22,7 +22,7 @@
     }
 
     .register-card {
-      max-width: 560px;
+      max-width: 590px;
       width: 100%;
       background: white;
       border-radius: 28px;
@@ -77,6 +77,7 @@
       font-weight: 600;
       color: #2e7d32;
       margin-bottom: 0.6rem;
+      margin-top: 0.6rem;
     }
 
     .form-control, .form-select {
@@ -139,6 +140,21 @@
       text-decoration: underline;
     }
 
+    /* Preview image */
+    .image-preview-container {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 14px;
+      border: 2px solid #e8f5e8;
+      display: none;
+      margin: 0 auto;
+    }
+
     /* Responsive */
     @media (max-width: 576px) {
       .register-header h1 { font-size: 2.3rem; }
@@ -164,7 +180,8 @@
         <form method="post"
               hx-post="{% url 'utilisateur:register' %}"
               hx-swap="outerHTML"
-              hx-indicator="#btn-spinner">
+              hx-indicator="#btn-spinner"
+              enctype="multipart/form-data">
 
           {% csrf_token %}
 
@@ -182,6 +199,18 @@
             </div>
 
             <div class="col-md-6">
+              <label class="form-label">{{ form.first_name.label }}</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.last_name.label }}</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
               <label class="form-label">{{ form.password1.label }}</label>
               {{ form.password1 }}
               {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors|join:", " }}</div>{% endif %}
@@ -196,16 +225,28 @@
             <div class="col-md-6">
               <label class="form-label">{{ form.role.label }}</label>
               {{ form.role }}
+              {% if form.role.errors %}<div class="text-danger small mt-1">{{ form.role.errors|join:", " }}</div>{% endif %}
             </div>
 
             <div class="col-md-6">
               <label class="form-label">{{ form.phone.label }}</label>
               {{ form.phone }}
+              {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors|join:", " }}</div>{% endif %}
             </div>
 
             <div class="col-12">
               <label class="form-label">{{ form.location.label }}</label>
               {{ form.location }}
+              {% if form.location.errors %}<div class="text-danger small mt-1">{{ form.location.errors|join:", " }}</div>{% endif %}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Image de profil (optionnel)</label>
+              {{ form.image }}
+              {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors|join:", " }}</div>{% endif %}
+              <div class="image-preview-container">
+                <img id="image-preview" class="image-preview" alt="Prévisualisation de l'image">
+              </div>
             </div>
           </div>
 
@@ -235,6 +276,25 @@
     document.body.addEventListener('htmx:afterRequest', e => {
       e.detail.elt.querySelector('.htmx-indicator').style.display = 'none';
     });
+
+    // Prévisualisation de l'image
+    const imageInput = document.querySelector('input[name="image"]');
+    const imagePreview = document.getElementById('image-preview');
+
+    if (imageInput && imagePreview) {
+      imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+          }
+          reader.readAsDataURL(file);
+        } else {
+          imagePreview.style.display = 'none';
+        }
+      });
+    }
   </script>
 {% endblock %}
-

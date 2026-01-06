@@ -3,8 +3,9 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from apps.products.models import Product
 from django.utils import timezone
+from apps.utilisateur.models import Utilisateur
 
-User = get_user_model()
+User = Utilisateur
 
 class Order(models.Model):
     class Status(models.TextChoices):  # ← Upgradé : TextChoices pour Django 6.0

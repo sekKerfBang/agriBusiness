@@ -4,226 +4,157 @@
 {% block title %}Mon Panier - AgriBusiness{% endblock %}
 
 {% block extra_css %}
-<!-- Même CSS que précédemment (je le garde identique pour cohérence) -->
 <style>
   /* En-tête du panier */
   .cart-header {
     text-align: center;
-    padding: 3rem 2rem;
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.05));
-    border-radius: 24px;
+    padding: 3.5rem 2rem;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(46, 125, 50, 0.15));
+    border-radius: 28px;
     margin-bottom: 3rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.09);
+    position: relative;
+    overflow: hidden;
+    color: white;
+  }
+
+  .cart-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('{% static "marketplace/images/pattern-leaves.png" %}') repeat;
+    opacity: 0.08;
+    pointer-events: none;
   }
 
   .cart-title {
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 800;
-    color: #2e7d32;
+    color: white;
     margin-bottom: 0.8rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    position: relative;
   }
 
   .cart-subtitle {
-    font-size: 1.3rem;
-    color: #4caf50;
-    font-weight: 500;
-  }
-
-  /* Item du panier */
-  .cart-item {
-    background: white;
-    border-radius: 20px;
-    padding: 1.8rem;
-    margin-bottom: 1.8rem;
-    box-shadow: 0 6px 25px rgba(0,0,0,0.07);
-    display: flex;
-    align-items: center;
-    gap: 1.8rem;
-    flex-wrap: wrap;
-    transition: all 0.3s ease;
-  }
-
-  .cart-item:hover {
-    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-    transform: translateY(-4px);
-  }
-
-  .cart-item-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 16px;
-    overflow: hidden;
-    flex-shrink: 0;
-    background: #f8f9fa;
-  }
-
-  .cart-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .cart-item-image .no-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-    color: #4caf50;
-  }
-
-  .cart-item-image .no-image i {
-    font-size: 3.5rem;
-    opacity: 0.7;
-  }
-
-  .cart-item-details {
-    flex: 1;
-    min-width: 280px;
-  }
-
-  .cart-item-name {
     font-size: 1.4rem;
-    font-weight: 700;
-    color: #2e7d32;
-    margin-bottom: 0.5rem;
-  }
-
-  .cart-item-producer {
-    color: #66bb6a;
+    color: rgba(255, 255, 255, 0.95);
     font-weight: 500;
-    margin-bottom: 0.8rem;
+    margin: 0;
+    position: relative;
   }
 
-  .cart-item-price {
-    font-size: 1.6rem;
+  #cart-total {
     font-weight: 800;
-    color: #2e7d32;
+    color: #fff;
   }
 
-  .cart-item-subtotal {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #388e3c;
+  /* Conteneur principal */
+  .cart-container {
+    max-width: 1100px;
+    margin: 0 auto;
   }
 
-  /* Contrôles quantité */
-  .quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .quantity-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #4caf50;
-    color: white;
-    border: none;
-    font-size: 1.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .quantity-btn:hover {
-    background: #388e3c;
-    transform: scale(1.1);
-  }
-
-  .quantity-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .quantity-display {
-    font-size: 1.4rem;
-    font-weight: 600;
-    min-width: 50px;
-    text-align: center;
-    color: #2e7d32;
-  }
-
-  /* Résumé */
+  /* Résumé du panier */
   .cart-summary {
-    background: linear-gradient(135deg, #4caf50, #388e3c);
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
     color: white;
-    border-radius: 24px;
-    padding: 2.5rem;
+    border-radius: 28px;
+    padding: 3rem 2.5rem;
     text-align: center;
-    box-shadow: 0 15px 40px rgba(76, 175, 80, 0.3);
-    margin-top: 2rem;
+    box-shadow: 0 20px 50px rgba(76, 175, 80, 0.35);
+    margin-top: 3rem;
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
 
   .cart-total-label {
-    font-size: 1.4rem;
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    opacity: 0.95;
+    margin-bottom: 0.6rem;
   }
 
   .cart-total-amount {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 900;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.3);
   }
 
   .btn-checkout {
     background: white;
     color: #2e7d32;
     font-weight: 700;
-    font-size: 1.3rem;
-    padding: 1rem 3rem;
-    border-radius: 50px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    transition: all 0.3s;
+    font-size: 1.4rem;
+    padding: 1.3rem 4rem;
+    border-radius: 60px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    transition: all 0.4s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
   }
 
   .btn-checkout:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.35);
     background: #f8f9fa;
+    color: #1b5e20;
   }
 
-  /* Panier vide */
-  .empty-cart {
+  /* Spinner global */
+  .htmx-indicator {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    padding: 3rem 4rem;
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    z-index: 9999;
     text-align: center;
-    padding: 6rem 2rem;
-    color: #666;
-  }
-
-  .empty-cart i {
-    font-size: 6rem;
-    color: #c8e6c9;
-    margin-bottom: 2rem;
-  }
-
-  .empty-cart h3 {
-    font-size: 2.2rem;
-    color: #4caf50;
-    margin-bottom: 1rem;
   }
 
   /* Responsive */
-  @media (max-width: 768px) {
-    .cart-item {
-      flex-direction: column;
-      text-align: center;
-    }
-    .cart-item-image {
-      width: 150px;
-      height: 150px;
-    }
-    .quantity-controls {
-      justify-content: center;
-    }
+  @media (max-width: 992px) {
     .cart-header {
-      padding: 2rem 1rem;
+      padding: 3rem 1.5rem;
+    }
+    .cart-title {
+      font-size: 2.6rem;
+    }
+    .cart-total-amount {
+      font-size: 3rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cart-header {
+      padding: 2.5rem 1rem;
+      border-radius: 20px;
     }
     .cart-title {
       font-size: 2.3rem;
+    }
+    .cart-subtitle {
+      font-size: 1.2rem;
+    }
+    .cart-summary {
+      padding: 2.5rem 1.5rem;
+      margin-top: 2rem;
+      border-radius: 20px;
+    }
+    .cart-total-amount {
+      font-size: 2.8rem;
+    }
+    .btn-checkout {
+      padding: 1.2rem 3rem;
+      font-size: 1.3rem;
+    }
+    .htmx-indicator {
+      padding: 2rem 2.5rem;
     }
   }
 </style>
@@ -231,58 +162,111 @@
 
 {% block content %}
 <div class="container my-5">
-  <!-- En-tête fixe -->
-  <div class="cart-header">
-    <h1 class="cart-title">Mon Panier</h1>
-    <p class="cart-subtitle" id="cart-summary-text">
-      {% if cart.items.exists %}
-        {{ cart.items.count }} article{{ cart.items.count|pluralize }} • 
-        Total : <strong id="cart-total">€{{ cart.get_total_amount|floatformat:2 }}</strong>
-      {% else %}
-        Votre panier est actuellement vide
-      {% endif %}
-    </p>
-  </div>
+  <div class="cart-container">
 
-  <!-- Liste des items (partial chargé et mis à jour via HTMX) -->
-  <div id="cart-items-container">
-    {% include 'pages/marketplace/partials/cart_items.html' %}
-  </div>
-
-  <!-- Résumé & Checkout (fixe, mis à jour via HTMX si besoin) -->
-  {% if cart.items.exists %}
-    <div class="cart-summary" id="cart-summary">
-      <p class="cart-total-label">Montant total à payer</p>
-      <div class="cart-total-amount" id="cart-total-amount">€{{ cart.get_total_amount|floatformat:2 }}</div>
-      <a href="{% url 'marketplace:checkout' %}" class="btn btn-checkout">
-        <i class="fas fa-credit-card mr-2"></i> Passer la commande
-      </a>
+    <!-- En-tête du panier -->
+    <div class="cart-header">
+      <h1 class="cart-title">Mon Panier</h1>
+      <p class="cart-subtitle" id="cart-summary-text">
+        {% if cart.items.exists %}
+          <span id="cart-items-count">{{ cart.items.count }}</span> article{{ cart.items.count|pluralize:"s" }} • 
+          Total : <strong id="cart-total"> fg {{ cart.get_total_amount|floatformat:2 }}</strong>
+        {% else %}
+          Votre panier est actuellement vide
+        {% endif %}
+      </p>
     </div>
-  {% endif %}
+
+    <!-- Messages Django — TOUJOURS visibles (hors zone HTMX) -->
+       <div id="messages-container" class="mb-4">
+      {% include "pages/marketplace/partials/messages.html" %}
+    </div> 
+
+    <!-- Liste des articles — seule zone mise à jour par HTMX -->
+    <div id="cart-items-container">
+      {% include 'pages/marketplace/partials/cart_items.html' %}
+    </div>
+
+    <!-- Résumé et checkout -->
+    {% if cart.items.exists %}
+      <div class="cart-summary" id="cart-summary-block">
+        <p class="cart-total-label">Montant total à payer</p>
+        <div class="cart-total-amount" id="cart-total-amount">
+          fg {{ cart.get_total_amount|floatformat:2 }}
+        </div>
+        <a href="{% url 'marketplace:checkout' %}" class="btn btn-checkout">
+          <i class="fas fa-credit-card"></i>
+          Passer la commande
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
 </div>
 
-<!-- Indicateur de chargement global -->
-<div class="htmx-indicator text-center my-4" style="display:none;">
-  <i class="fas fa-spinner fa-spin fa-2x text-success"></i> Mise à jour du panier...
+<!-- Spinner global magnifique -->
+<div class="htmx-indicator">
+  <div class="spinner-border text-success" role="status" style="width: 4.5rem; height: 4.5rem;">
+    <span class="visually-hidden">Mise à jour...</span>
+  </div>
+  <p class="mt-4 text-success fw-bold fs-3">Mise à jour du panier...</p>
 </div>
 
 <script>
-  // Affiche/masque le spinner pendant les requêtes HTMX
+  // Gestion du spinner
   document.body.addEventListener('htmx:beforeRequest', () => {
     document.querySelector('.htmx-indicator').style.display = 'block';
   });
+
   document.body.addEventListener('htmx:afterRequest', () => {
     document.querySelector('.htmx-indicator').style.display = 'none';
   });
 
-  // Optionnel : mise à jour du résumé en-tête après chaque modification
-  document.body.addEventListener('htmx:afterSwap', (evt) => {
-    if (evt.target.id === 'cart-items-container') {
-      // Vous pouvez ajouter une petite vue HTMX qui renvoie aussi le total mis à jour
-      // ou simplement recharger la page si c'est plus simple
-      // Ici on suppose que votre vue renvoie aussi le nouveau total via un header ou un partial séparé
+  // Mise à jour dynamique du total après chaque modification HTMX
+  document.body.addEventListener('htmx:afterSwap', (event) => {
+    if (event.target.id === 'cart-items-container') {
+      const container = event.target;
+
+      // Extraction précise du sous-total (format " fg XXX.XX")
+      const subtotalEls = container.querySelectorAll('.cart-item-subtotal strong');
+      let total = 0;
+      subtotalEls.forEach(el => {
+        const text = el.textContent.trim();
+        const match = text.match(/[\d.,]+/);
+        if (match) {
+          total += parseFloat(match[0].replace(',', '.'));
+        }
+      });
+
+      const itemsCount = container.querySelectorAll('.cart-item').length;
+
+      if (itemsCount > 0) {
+        // Mise à jour en-tête
+        document.getElementById('cart-items-count').textContent = itemsCount;
+        const formattedTotal = ' fg ' + total.toFixed(2);
+        document.getElementById('cart-total').textContent = formattedTotal;
+        document.getElementById('cart-summary-text').innerHTML = 
+          `${itemsCount} article${itemsCount > 1 ? 's' : ''} • Total : <strong id="cart-total">${formattedTotal}</strong>`;
+
+        // Mise à jour résumé
+        document.getElementById('cart-total-amount').textContent = formattedTotal;
+        document.getElementById('cart-summary-block').style.display = 'block';
+      } else {
+        document.getElementById('cart-summary-text').textContent = 'Votre panier est actuellement vide';
+        document.getElementById('cart-summary-block').style.display = 'none';
+      }
+    }
+  });
+</script>
+<script>
+  document.body.addEventListener('htmx:afterSwap', (event) => {
+    if (event.target.id === 'cart-items-container') {
+      // Recharge les messages depuis le serveur après chaque mise à jour
+      htmx.ajax('GET', '{% url "marketplace:cart_messages" %}', {
+        target: '#messages-container',
+        swap: 'innerHTML'
+      });
     }
   });
 </script>
 {% endblock %}
-

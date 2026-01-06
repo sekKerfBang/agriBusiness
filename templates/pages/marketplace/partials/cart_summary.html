@@ -1,0 +1,11 @@
+<div id="cart-summary" hx-swap-oob="true">
+  {% if cart.items.exists %}
+    <div class="cart-summary">
+      <p class="cart-total-label">Montant total à payer</p>
+      <div class="cart-total-amount">fg {{ cart.get_total_amount|floatformat:2 }}</div>
+      <a href="{% url 'marketplace:checkout' %}" class="btn btn-checkout">
+        <i class="fas fa-credit-card mr-2"></i> Passer la commande
+      </a>
+    </div>
+  {% endif %}
+</div>

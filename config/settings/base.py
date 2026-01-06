@@ -72,7 +72,7 @@ ROOT_URLCONF = 'config.urls'
 # Custom user model (de notre UML : Utilisateur avec rôles Client/Entreprise)
 AUTH_USER_MODEL = 'utilisateur.Utilisateur'
 LOGIN_REDIRECT_URL = '/dashboard/index'  # Après login
-LOGOUT_REDIRECT_URL = '/marketplace/home/'  # Après logout
+LOGOUT_REDIRECT_URL = 'marketplace/home/'  # Après logout
 LOGIN_URL = '/login/' # cette route 
 
 TEMPLATES = [
@@ -86,7 +86,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'apps.orders.context_processors.cart_count',
+                'config.context_processors.unread_notifications',
+                'apps.orders.context_processors.cart_context',
+                "marketplace.context_processors.cart_context",
             ],
         },
     },
@@ -163,18 +165,29 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+# cet module est utilisé pour planifier des tâches périodiques avec Celery et Django
+from celery.schedules import crontab
 
 # Celery (broker Redis, tâche low-stock pour Products)
 CELERY_BROKER_URL = env('CELERY_BROKER', default='redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = env('CELERY_BACKEND', default='redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BEAT_SCHEDULE = {
     'check-low-stock-every-hour': {
-        'task': 'apps.products.tasks.check_low_stock',  # ← Corrigé path
+        'task': 'apps.products.tasks.check_low_stock',  
         'schedule': jwt_timedelta(hours=1).total_seconds(),
+        'daily-producer-report': {
+        'task': 'tasks.email_tasks.send_daily_producer_report',
+        'schedule': crontab(hour=6, minute=0),
+    },
+    'reset-daily-stats': {
+        'task': 'tasks.product_tasks.update_product_statistics',
+        'schedule': crontab(hour=0, minute=0),
+    },
     },
 }
 # Security settings (relâchés pour dev local)
@@ -184,7 +197,7 @@ CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']  #
 
 
 # Email (Anymail/SendGrid par défaut)
-EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend'  # ← Corrigé : cohérent avec Anymail
+EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend' 
 ANYMAIL = {
     "SENDGRID_API_KEY": env('SENDGRID_KEY', default=''),
 }
@@ -198,11 +211,18 @@ DEFAULT_FROM_EMAIL = 'noreply@agribusiness.com'  # Expéditeur des mails reset
 # Pour prod (ex: SendGrid, comme dans ton Anymail config)
 # EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend'
 # ANYMAIL = {"SENDGRID_API_KEY": env('SENDGRID_KEY')}
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'tonemail@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tonpassapp'
+# DEFAULT_FROM_EMAIL = 'noreply@agrobusiness.com'
 
 # URLs pour reset (optionnel, mais utile)
-PASSWORD_RESET_TIMEOUT = 259200  # 
+PASSWORD_RESET_TIMEOUT = 259200  # 3 jours en secondes
 
-#Payment 
+#Payment
 # settings.py
-STRIPE_PUBLIC_KEY = 'pk_test_51VotreClePublique'
-STRIPE_SECRET_KEY = 'sk_test_51VotreCleSecrete'
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')

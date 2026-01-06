@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from apps.products.models import Product
 from apps.orders.models import  Order, OrderItem, Cart, CartItem
-from marketplace.api.serializers import ProductSerializer, OrderSerializer, CartSerializer
+from apps.marketplace.api.serializers import ProductSerializer, OrderSerializer, CartSerializer
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(is_active=True).select_related('category', 'producer')

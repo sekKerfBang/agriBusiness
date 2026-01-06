@@ -43,7 +43,7 @@ class CustomPasswordResetForm(PasswordResetForm):
             'class': 'form-control',
             'placeholder': 'Votre adresse email',
             'autocomplete': 'email',
-            'autofocus': True  # Optionnel : focus automatique au chargement
+            'autofocus': True 
         })
         # Tu peux aussi customiser le label si tu veux
         self.fields['email'].label = "Adresse email"
@@ -65,7 +65,7 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = Utilisateur
-        fields = ['username', 'email', 'password1', 'password2', 'role', 'phone', 'location']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'role', 'phone', 'location', 'image']
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -84,13 +84,25 @@ class UserRegisterForm(UserCreationForm):
                 'placeholder': 'Emplacement (ex: coordonnées GPS)'
             }),
             'role': forms.Select(attrs={'class': 'form-control'}),
+
             'password1': forms.PasswordInput(attrs={
                 'class': 'form-control',    
-                'placeholder': 'Mot de passe'
+                'placeholder': 'Mot de passe',
+                'label' : 'Mot de passe'
             }),
             'password2': forms.PasswordInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Confirmer le mot de passe'
+                'placeholder': 'Confirmer le mot de passe',
+                'label' : 'Confirmer',
+            }),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Prénom'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom de famille'
             }),
         }
 
@@ -118,52 +130,137 @@ class LoginForm(AuthenticationForm):
         'placeholder': 'Mot de passe',
     }))
 
+# class UserProfileEditForm(UserChangeForm):
+#     password = None  # Pas d'édition password ici (utilise view dédiée si besoin)
+
+#     class Meta:
+#         model = Utilisateur
+#         fields = [ 'email', 'phone', 'location', 'role', 'image', 'first_name', 'last_name']  # Rôle éditable par admin seulement ?
+#         widgets = {
+#             'username': forms.TextInput(attrs={'class': 'form-control'}),
+#             'email': forms.EmailInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'example@gmail.com'}),
+#             'phone': forms.TextInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder' : '+224 000 00 00 00'}),
+#             'location': forms.TextInput(attrs={
+#             'class': 'form-control',
+#             'placeholder' : 'Pays, ville, quartier ?'}),
+#             'role': forms.Select(attrs={'class': 'form-control'}),
+#             'image': forms.FileInput(attrs={'class': 'form-control'}),
+#             'first_name': forms.TextInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Prénom'
+#             }),
+#             'last_name': forms.TextInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Nom de famille'
+#             }),
+
+#         }
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         for field_name, field in self.fields.items():
+#             if isinstance(field.widget, forms.TextInput) or isinstance(field.widget, forms.EmailInput):
+#                 field.widget.attrs.update({'class': 'form-control'})
+#             elif isinstance(field.widget, forms.Textarea):
+#                 field.widget.attrs.update({'class': 'form-control form-control-textarea'})
+#             elif isinstance(field.widget, forms.CheckboxInput):
+#                 field.widget.attrs.update({'class': 'form-check-input'})    
+
+# class ProducerProfileEditForm(forms.ModelForm):
+#     class Meta:
+#         model = ProducerProfile
+#         fields = ['is_organic', 'description', 'certifications', 'image']  # Champs pour producteurs
+#         widgets = {
+#             'is_organic': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+#             'description': forms.Textarea(attrs={
+#                 'class': 'form-control form-control-textarea',
+#                 'rows': 6,
+#                 'placeholder': 'Décrivez votre exploitation, vos valeurs, vos méthodes...'}),
+#             'certifications': forms.TextInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Ex: AOP, IGP, HVE, Label Rouge...'
+#             }),
+#             'image': forms.FileInput(attrs={'class': 'form-control'}),
+          
+#         }
+
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         for field_name, field in self.fields.items():
+#             if isinstance(field.widget, forms.TextInput) or isinstance(field.widget, forms.EmailInput):
+#                 field.widget.attrs.update({'class': 'form-control'})
+#             elif isinstance(field.widget, forms.Textarea):
+#                 field.widget.attrs.update({'class': 'form-control form-control-textarea'})
+#             elif isinstance(field.widget, forms.CheckboxInput):
+#                 field.widget.attrs.update({'class': 'form-check-input'})      
+
 class UserProfileEditForm(UserChangeForm):
-    password = None  # Pas d'édition password ici (utilise view dédiée si besoin)
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Nouveau mot de passe (optionnel)"
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=False,
+        label="Confirmer le nouveau mot de passe"
+    )
 
     class Meta:
         model = Utilisateur
-        fields = [ 'email', 'phone', 'location']  # Rôle éditable par admin seulement ?
+        fields = ['email', 'phone', 'location', 'role', 'image', 'first_name', 'last_name']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'example@gmail.com'}),
-            'phone': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder' : '+224 000 00 00 00'}),
-            'location': forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder' : 'Pays, ville, quartier ?'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'example@gmail.com'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+224 000 00 00 00'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pays, ville, quartier ?'}),
             'role': forms.Select(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Prénom'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de famille'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+        if password and password != confirm_password:
+            self.add_error('confirm_password', "Les mots de passe ne correspondent pas.")
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        if password:
+            user.set_password(password)
+        if commit:
+            user.save()
+        return user
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            if isinstance(field.widget, forms.TextInput) or isinstance(field.widget, forms.EmailInput):
+            if isinstance(field.widget, forms.TextInput) or isinstance(field.widget, forms.EmailInput) or isinstance(field.widget, forms.PasswordInput):
                 field.widget.attrs.update({'class': 'form-control'})
             elif isinstance(field.widget, forms.Textarea):
                 field.widget.attrs.update({'class': 'form-control form-control-textarea'})
             elif isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs.update({'class': 'form-check-input'})    
+                field.widget.attrs.update({'class': 'form-check-input'})
 
 class ProducerProfileEditForm(forms.ModelForm):
     class Meta:
         model = ProducerProfile
-        fields = ['is_organic', 'description', 'certifications']  # Champs pour producteurs
+        fields = ['is_organic', 'description', 'certifications', 'image']
         widgets = {
             'is_organic': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'description': forms.Textarea(attrs={
-                'class': 'form-control form-control-textarea',
-                'rows': 6,
-                'placeholder': 'Décrivez votre exploitation, vos valeurs, vos méthodes...'}),
-            'certifications': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: AOP, IGP, HVE, Label Rouge...'
-            }),
+            'description': forms.Textarea(attrs={'class': 'form-control form-control-textarea', 'rows': 6, 'placeholder': 'Décrivez votre exploitation...'}),
+            'certifications': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: AOP, IGP...'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
         }
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -173,4 +270,4 @@ class ProducerProfileEditForm(forms.ModelForm):
             elif isinstance(field.widget, forms.Textarea):
                 field.widget.attrs.update({'class': 'form-control form-control-textarea'})
             elif isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs.update({'class': 'form-check-input'})      
+                field.widget.attrs.update({'class': 'form-check-input'})

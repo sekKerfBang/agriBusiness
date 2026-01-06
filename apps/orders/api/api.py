@@ -6,7 +6,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from ..models import Order, OrderItem, Cart, CartItem
 from .serializers import OrderSerializer, OrderCreateSerializer, CartSerializer
-from services.payment_service import PaymentService
+from apps.marketplace.services import PaymentService
 from tasks.email_tasks import send_order_confirmation_task
 
 class OrderViewSet(viewsets.ModelViewSet):

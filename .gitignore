@@ -1,0 +1,44 @@
+# Environnements virtuels
+env/
+.venv/
+venv/
+
+# Fichiers Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+migrations/*  # Optionnel : ignore les migrations non essentielles, mais attention en équipe
+
+# Fichiers sensibles
+.env
+.env.local
+.env.development.local
+.env.production.local
+secrets.json
+credentials.json
+
+# Éditeurs/IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Autres
+node_modules/
+dist/
+build/
+*.sql
+*.dump
+*.bak
+*.tmp

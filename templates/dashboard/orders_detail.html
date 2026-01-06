@@ -169,8 +169,8 @@
           </td>
           <td> <strong>{{ item.product.name }}</strong> </td>
           <td>{{ item.quantity }}</td>
-          <td>{{ item.price_at_purchase|floatformat:2 }} €</td>
-          <td><strong>{{ item.get_subtotal|floatformat:2 }} €</strong></td>
+          <td>{{ item.price_at_purchase|floatformat:2 }} fg </td>
+          <td><strong>{{ item.get_subtotal|floatformat:2 }} fg </strong></td>
         </tr>
         {% empty %}
         <tr>
@@ -181,7 +181,7 @@
       <tfoot>
         <tr>
           <td colspan="3" class="text-end fw-bold fs-4">Total :</td>
-          <td><span class="total-amount">{{ order.total_amount|floatformat:2 }} €</span></td>
+          <td><span class="total-amount">{{ order.total_amount|floatformat:2 }} fg </span></td>
         </tr>
       </tfoot>
     </table>

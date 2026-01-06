@@ -4,43 +4,213 @@ from django.db.models import Sum, Count, Q
 from django.db.models.functions import TruncMonth
 from apps.products.models import Product
 from apps.orders.models import Order, OrderItem
-
+from datetime import datetime, timedelta
+from django.shortcuts import redirect
+from django.utils import timezone
+from apps.utilisateur.models import ProducerProfile
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
-    """Dashboard principal du producteur"""
     template_name = 'dashboard/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        if not user.is_entreprise or not hasattr(user, 'producer_profile'):
-            context['error'] = "Vous n'avez pas accès au dashboard producteur. <a href='/marketplace/'>Retour au marché</a>."
-            # Defaults vides pour éviter erreurs
-            context['stats'] = {'total_products': 0, 'active_products': 0, 'total_orders': 0, 'revenue': 0, 'pending_orders': 0, 'low_stock': 0}
-            context['recent_orders'] = []
-            context['stock_alerts'] = []
+        # 1. Vérification que l'utilisateur est un producteur
+        if not user.is_entreprise:
+            context['error'] = "Accès réservé aux producteurs. <a href='/marketplace/'>Retour au marché</a>."
+            context.update(self.get_empty_context())
             return context
 
-        producer = user.producer_profile
-        products_qs = Product.objects.filter(producer=producer)
-        orders_qs = Order.objects.filter(items__product__in=products_qs).distinct()
+        # 2. Vérification du ProducerProfile
+        try:
+            producer_profile = user.producer_profile
 
-        # Stats (comme ton code)
+        except AttributeError:
+            # Si le related_name est mal configuré
+            context['error'] = "Erreur de configuration du profil producteur. Contactez l'administrateur."
+            context.update(self.get_empty_context())
+            return context
+        except ProducerProfile.DoesNotExist:
+            # Profil producteur manquant → on redirige vers édition pour le créer automatiquement
+            return redirect('utilisateur:profile_edit')
+
+        # 3. Tout est bon → on récupère les données réelles
+        products_qs = Product.objects.filter(producer=producer_profile)
+
+        # Commandes liées aux produits du producteur (via OrderItem)
+        orders_qs = Order.objects.filter(items__product__producer=producer_profile).distinct()
+
+        # Période pour la tendance CA (30 derniers jours)
+        now = datetime.now()
+        last_30_days = now - timedelta(days=30)
+        previous_30_days_start = last_30_days - timedelta(days=30)
+
+        recent_orders_period = orders_qs.filter(created_at__gte=last_30_days)
+        previous_orders_period = orders_qs.filter(
+            created_at__gte=previous_30_days_start,
+            created_at__lt=last_30_days
+        )
+
+        recent_revenue = recent_orders_period.aggregate(total=Sum('total_amount'))['total'] or 0
+        previous_revenue = previous_orders_period.aggregate(total=Sum('total_amount'))['total'] or 0
+
+        # Calcul de la tendance
+        if previous_revenue > 0:
+            revenue_trend = ((recent_revenue - previous_revenue) / previous_revenue) * 100
+        elif recent_revenue > 0:
+            revenue_trend = 100.0  # Première vente
+        else:
+            revenue_trend = 0.0
+
+        # Stats complètes
         context['stats'] = {
             'total_products': products_qs.count(),
             'active_products': products_qs.filter(is_active=True).count(),
             'total_orders': orders_qs.count(),
-            'pending_orders': orders_qs.filter(status='PENDING').count(),
+            'pending_orders': orders_qs.filter(status__in=['PENDING', 'CONFIRMED', 'PREPARING']).count(),
             'revenue': orders_qs.filter(status='DELIVERED').aggregate(total=Sum('total_amount'))['total'] or 0,
-            'low_stock': products_qs.filter(stock__lt=10).count(),
+            'revenue_trend': round(revenue_trend, 1),
+            'low_stock': products_qs.filter(stock__lt=10, stock__gt=0).count(),
+            'out_of_stock': products_qs.filter(stock=0).count(),
+            'monthly_revenue': recent_revenue,
         }
 
-        context['recent_orders'] = orders_qs.order_by('-created_at')[:6]
-        context['stock_alerts'] = products_qs.filter(stock__lt=10).order_by('stock')[:6]
+        context['recent_orders'] = orders_qs.order_by('-created_at')[:8]
+        context['stock_alerts'] = products_qs.filter(stock__lt=10).order_by('stock')[:8]
+        context['has_data'] = products_qs.exists() or orders_qs.exists()
 
         return context
+
+    def get_empty_context(self):
+        """Retourne les données vides pour éviter les erreurs de template"""
+        return {
+            'stats': {
+                'total_products': 0,
+                'active_products': 0,
+                'total_orders': 0,
+                'pending_orders': 0,
+                'revenue': 0,
+                'revenue_trend': 0,
+                'low_stock': 0,
+                'out_of_stock': 0,
+                'monthly_revenue': 0,
+            },
+            'recent_orders': [],
+            'stock_alerts': [],
+            'has_data': False,
+        }
+
+# class DashboardView(LoginRequiredMixin, TemplateView):
+#     template_name = 'dashboard/index.html'
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         user = self.request.user
+
+#         # Vérification accès producteur
+#         if not user.is_entreprise:
+#             context['error'] = "Accès réservé aux producteurs. <a href='/marketplace/'>Retour au marché</a>."
+#             context['stats'] = self.get_empty_stats()
+#             context['recent_orders'] = []
+#             context['stock_alerts'] = []
+#             return context
+
+#         try:
+#             producer_profile = user.producerprofile  # grâce au related_name
+#         except AttributeError:
+#             context['error'] = "Votre profil producteur est incomplet. <a href='/profile/edit/'>Complétez-le ici</a>."
+#             context['stats'] = self.get_empty_stats()
+#             context['recent_orders'] = []
+#             context['stock_alerts'] = []
+#             return context
+
+#         # Récupération des produits du producteur
+#         products_qs = Product.objects.filter(producer=producer_profile)
+
+#         # Commandes liées aux produits du producteur
+#         orders_qs = Order.objects.filter(items__product__producer=producer_profile).distinct()
+
+#         # Période pour les tendances (30 derniers jours)
+#         last_30_days = datetime.now() - timedelta(days=30)
+#         recent_orders = orders_qs.filter(created_at__gte=last_30_days)
+#         previous_orders = orders_qs.filter(created_at__lt=last_30_days, created_at__gte=last_30_days - timedelta(days=30))
+
+#         recent_revenue = recent_orders.aggregate(total=Sum('total_amount'))['total'] or 0
+#         previous_revenue = previous_orders.aggregate(total=Sum('total_amount'))['total'] or 0
+
+#         # Calcul tendance CA
+#         if previous_revenue > 0:
+#             revenue_trend = ((recent_revenue - previous_revenue) / previous_revenue) * 100
+#         else:
+#             revenue_trend = 100 if recent_revenue > 0 else 0
+
+#         context['stats'] = {
+#             'total_products': products_qs.count(),
+#             'active_products': products_qs.filter(is_active=True).count(),
+#             'total_orders': orders_qs.count(),
+#             'pending_orders': orders_qs.filter(status__in=['PENDING', 'CONFIRMED', 'PREPARING']).count(),
+#             'revenue': orders_qs.filter(status='DELIVERED').aggregate(total=Sum('total_amount'))['total'] or 0,
+#             'revenue_trend': round(revenue_trend, 1),
+#             'low_stock': products_qs.filter(stock__lt=10, stock__gt=0).count(),
+#             'out_of_stock': products_qs.filter(stock=0).count(),
+#             'monthly_revenue': recent_revenue,
+#         }
+
+#         context['recent_orders'] = orders_qs.order_by('-created_at')[:8]
+#         context['stock_alerts'] = products_qs.filter(stock__lt=10).order_by('stock')[:8]
+#         context['has_data'] = products_qs.exists() or orders_qs.exists()
+
+#         return context
+
+#     def get_empty_stats(self):
+#         return {
+#             'total_products': 0,
+#             'active_products': 0,
+#             'total_orders': 0,
+#             'pending_orders': 0,
+#             'revenue': 0,
+#             'revenue_trend': 0,
+#             'low_stock': 0,
+#             'out_of_stock': 0,
+#             'monthly_revenue': 0,
+#         }
+
+# class DashboardView(LoginRequiredMixin, TemplateView):
+#     """Dashboard principal du producteur"""
+#     template_name = 'dashboard/index.html'
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         user = self.request.user
+
+#         if not user.is_entreprise or not hasattr(user, 'producer_profile'):
+#             context['error'] = "Vous n'avez pas accès au dashboard producteur. <a href='/marketplace/'>Retour au marché</a>."
+#             # Defaults vides pour éviter erreurs
+#             context['stats'] = {'total_products': 0, 'active_products': 0, 'total_orders': 0, 'revenue': 0, 'pending_orders': 0, 'low_stock': 0}
+#             context['recent_orders'] = []
+#             context['stock_alerts'] = []
+#             return context
+
+#         producer = user.producer_profile
+#         products_qs = Product.objects.filter(producer=producer)
+#         orders_qs = Order.objects.filter(items__product__in=products_qs).distinct()
+
+#         # Stats (comme ton code)
+#         context['stats'] = {
+#             'total_products': products_qs.count(),
+#             'active_products': products_qs.filter(is_active=True).count(),
+#             'total_orders': orders_qs.count(),
+#             'pending_orders': orders_qs.filter(status='PENDING').count(),
+#             'revenue': orders_qs.filter(status='DELIVERED').aggregate(total=Sum('total_amount'))['total'] or 0,
+#             'low_stock': products_qs.filter(stock__lt=10).count(),
+#         }
+
+#         context['recent_orders'] = orders_qs.order_by('-created_at')[:6]
+#         context['stock_alerts'] = products_qs.filter(stock__lt=10).order_by('stock')[:6]
+
+#         return context
 
 ##  Product File 
 
@@ -80,6 +250,16 @@ class ProductAccessMixin(LoginRequiredMixin):
             return redirect('dashboard:index')
 
         return super().dispatch(request, *args, **kwargs)
+# cette classe mixin peut être utilisée pour les vues de gestion des produits
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'dashboard/product_detail.html'
+    context_object_name = 'product'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Vous pouvez ajouter des données supplémentaires ici si nécessaire
+        return context
 
 
 # Ajout d'un produit

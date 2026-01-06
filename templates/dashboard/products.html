@@ -245,7 +245,7 @@
                   <small class="text-muted">{{ product.description|truncatechars:60 }}</small>
                 </td>
                 <td>{{ product.category.name }}</td>
-                <td><strong>{{ product.price|floatformat:2 }} €</strong></td>
+                <td><strong>{{ product.price|floatformat:2 }} fg</strong></td>
                 <td>
                   <span class="stock-level
                     {% if product.stock < 10 %}stock-low

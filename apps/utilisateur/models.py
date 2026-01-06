@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
+
 class Utilisateur(AbstractUser):
     class Role(models.TextChoices):
         CLIENT = 'CLIENT', _('Client (Agriculteur/Acheteur)')
@@ -16,6 +17,7 @@ class Utilisateur(AbstractUser):
         null=True, blank=True,
         verbose_name="Dernier changement de mot de passe"
     )
+    image = models.ImageField(upload_to='user_profiles/', null=True, blank=True, verbose_name=_("Image de profil"))
 
     class Meta:
         app_label = 'utilisateur'  
@@ -35,8 +37,7 @@ class Utilisateur(AbstractUser):
     
     def set_password(self, raw_password):
         super().set_password(raw_password)
-        self.last_password_change = timezone.now()  # Update auto à chaque changement MDP
-        self.save(update_fields=['password', 'last_password_change']) 
+        self.last_password_change = timezone.now()
     
     
 class ProducerProfile(models.Model):  # Si ici
@@ -48,7 +49,8 @@ class ProducerProfile(models.Model):  # Si ici
     is_organic = models.BooleanField(default=False, verbose_name=_("Certification bio"))  # ← FIX : Ajouté pour filter
     description = models.TextField(blank=True, verbose_name=_("Description (spécialités agricoles)"))
     certifications = models.CharField(max_length=255, blank=True, verbose_name=_("Certifications (ex: AB, HVE)"))
-    validated = models.BooleanField(default=False, verbose_name=_("Validé par admin"))  # ← FIX : Ajouté pour filter    
+    validated = models.BooleanField(default=False, verbose_name=_("Validé par admin"))  # ← FIX : Ajouté pour filter 
+    image = models.ImageField(upload_to='producer_profiles/', null=True, blank=True, verbose_name=_("Image de profil"))
     class Meta:
         app_label = 'utilisateur'
         verbose_name = _('Profil Producteur')
@@ -57,3 +59,27 @@ class ProducerProfile(models.Model):  # Si ici
     def __str__(self):
         return f"Profil de {self.user.username}"
 
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('NEW_ORDER', 'Nouvelle commande'),
+        ('LOW_STOCK', 'Stock bas'),
+        ('ORDER_UPDATE', 'Mise à jour commande'),
+        ('MESSAGE', 'Nouveau message'),
+        ('INFO', 'Information'),
+    ]
+
+    user = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    related_order = models.ForeignKey('orders.Order', null=True, blank=True, on_delete=models.SET_NULL)
+    related_product = models.ForeignKey('products.Product', null=True, blank=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"

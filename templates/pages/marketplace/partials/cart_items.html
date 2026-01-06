@@ -1,9 +1,551 @@
 {% load static %}
 
+<style>
+/* Styles améliorés pour le panier */
+:root {
+    --cart-primary: #2E7D32;
+    --cart-secondary: #4CAF50;
+    --cart-accent: #FFD54F;
+    --cart-light: #E8F5E9;
+    --cart-dark: #1B5E20;
+    --cart-danger: #D32F2F;
+    --cart-warning: #FF9800;
+}
+
+.cart-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.cart-header {
+    background: linear-gradient(135deg, var(--cart-primary), var(--cart-dark));
+    color: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.2);
+}
+
+.cart-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.cart-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Article du panier - Design carte premium */
+.cart-item-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cart-item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    border-color: var(--cart-secondary);
+}
+
+.cart-item-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--cart-primary), var(--cart-secondary));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.cart-item-card:hover::before {
+    opacity: 1;
+}
+
+/* Image produit */
+.cart-item-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--cart-light), #fff);
+    border: 2px solid rgba(76, 175, 80, 0.1);
+}
+
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.cart-item-card:hover .cart-item-image img {
+    transform: scale(1.05);
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--cart-light), #fff);
+    color: var(--cart-secondary);
+}
+
+.no-image-placeholder i {
+    font-size: 2.5rem;
+    opacity: 0.7;
+}
+
+/* Détails produit */
+.cart-item-details {
+    flex: 1;
+    min-width: 300px;
+}
+
+.cart-item-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--cart-dark);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.cart-item-producer {
+    color: var(--cart-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Prix et sous-total */
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.unit-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--cart-primary);
+    background: rgba(76, 175, 80, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.subtotal-price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cart-dark);
+}
+
+/* Contrôles quantité premium */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.quantity-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--cart-secondary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.quantity-btn:hover:not(:disabled) {
+    background: var(--cart-primary);
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(46, 125, 50, 0.4);
+}
+
+.quantity-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.quantity-display {
+    font-size: 1.3rem;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+    color: var(--cart-dark);
+    background: rgba(76, 175, 80, 0.05);
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+/* Boutons suppression améliorés */
+.delete-controls {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.delete-btn {
+    background: rgba(211, 47, 47, 0.1);
+    color: var(--cart-danger);
+    border: 2px solid var(--cart-danger);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.delete-btn:hover {
+    background: var(--cart-danger);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+}
+
+.confirm-delete-btn {
+    background: var(--cart-danger);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    animation: pulse 1.5s infinite;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.confirm-delete-btn:hover {
+    background: #b71c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(183, 28, 28, 0.4);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Panier vide */
+.empty-cart-container {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.empty-cart-icon {
+    font-size: 5rem;
+    color: var(--cart-light);
+    margin-bottom: 1.5rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.empty-cart-title {
+    color: var(--cart-primary);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.empty-cart-message {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-browse-products {
+    background: linear-gradient(135deg, var(--cart-primary), var(--cart-secondary));
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+}
+
+.btn-browse-products:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(46, 125, 50, 0.4);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .cart-item-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .cart-item-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .price-container {
+        justify-content: center;
+    }
+    
+    .delete-controls {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-header {
+        padding: 2rem;
+    }
+    
+    .cart-title {
+        font-size: 2rem;
+    }
+    
+    .quantity-controls {
+        justify-content: center;
+    }
+}
+
+/* Animation de chargement HTMX */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(76, 175, 80, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--cart-secondary);
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<div id="cart-items">
+    {% if cart and cart.items.exists %}
+        {% for item in cart.items.all %}
+            <div class="cart-item-card" id="cart-item-{{ item.id }}">
+                <!-- Image produit -->
+                <div class="cart-item-image">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                             loading="lazy">
+                    {% else %}
+                        <div class="no-image-placeholder">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Détails produit -->
+                <div class="cart-item-details">
+                    <h4 class="cart-item-name">{{ item.product.name }}</h4>
+                    
+                    <div class="cart-item-producer">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Producteur : {{ item.product.producer.user.username }}</span>
+                    </div>
+                    
+                    <div class="price-container">
+                        <div class="unit-price">
+                            {{ item.product.price|floatformat:2 }} fg / unité
+                        </div>
+                        
+                        <div class="subtotal-price">
+                            Sous-total : <strong>{{ item.get_subtotal|floatformat:2 }} fg</strong>
+                        </div>
+                    </div>
+                    
+                    <!-- Contrôles quantité -->
+                    <div class="quantity-controls">
+                        <button class="quantity-btn"
+                                hx-post="{% url 'marketplace:update_cart_quantity' item.id %}"
+                                hx-vals='{"quantity_change": -1}'
+                                hx-target="#cart-items"
+                                hx-swap="innerHTML"
+                                hx-indicator="#loading-{{ item.id }}"
+                                {% if item.quantity <= 1 %}disabled{% endif %}>
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        
+                        <span class="quantity-display">
+                            <span id="loading-{{ item.id }}" class="loading-spinner htmx-indicator"></span>
+                            {{ item.quantity }}
+                        </span>
+                        
+                        <button class="quantity-btn"
+                                hx-post="{% url 'marketplace:update_cart_quantity' item.id %}"
+                                hx-vals='{"quantity_change": 1}'
+                                hx-target="#cart-items"
+                                hx-swap="innerHTML"
+                                hx-indicator="#loading-plus-{{ item.id }}"
+                                {% if item.quantity >= item.product.stock %}disabled{% endif %}>
+                            <i class="fas fa-plus"></i>
+                            <span id="loading-plus-{{ item.id }}" class="loading-spinner htmx-indicator"></span>
+                        </button>
+                        
+                        <span class="text-muted ms-3" style="font-size: 0.9rem;">
+                            Stock : {{ item.product.stock }} disponible{{ item.product.stock|pluralize:"s" }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Boutons suppression -->
+                <div class="delete-controls">
+                    <!-- Bouton Supprimer (affiché par défaut) -->
+                    <button id="delete-btn-{{ item.id }}" 
+                            class="delete-btn"
+                            onclick="
+                                document.getElementById('confirm-btn-{{ item.id }}').style.display = 'flex';
+                                this.style.display = 'none';
+                            ">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+                    
+                    <!-- Bouton Confirmer (caché par défaut) -->
+                    <button id="confirm-btn-{{ item.id }}" 
+                            style="display: none;"
+                            hx-delete="{% url 'marketplace:remove_from_cart' item.id %}"
+                            hx-target="#cart-items"
+                            hx-swap="innerHTML"
+                            class="confirm-delete-btn">
+                        <i class="fas fa-exclamation-triangle"></i> Confirmer ?
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <!-- Panier vide -->
+        <div class="empty-cart-container">
+            <div class="empty-cart-icon">
+                <i class="fas fa-shopping-basket"></i>
+            </div>
+            <h3 class="empty-cart-title">Votre panier est vide</h3>
+            <p class="empty-cart-message">
+                Ajoutez des produits frais de nos agriculteurs locaux pour commencer vos achats.
+                Découvrez notre sélection de produits de qualité !
+            </p>
+            <a href="{% url 'marketplace:product_list' %}" class="btn-browse-products">
+                <i class="fas fa-store"></i> Explorer la boutique
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Gestion de la confirmation de suppression
+document.addEventListener('click', function(e) {
+    // Si on clique en dehors d'un bouton de suppression
+    if (!e.target.closest('.delete-controls')) {
+        // Cacher tous les boutons "Confirmer"
+        document.querySelectorAll('[id^="confirm-btn-"]').forEach(btn => {
+            btn.style.display = 'none';
+        });
+        // Afficher tous les boutons "Supprimer"
+        document.querySelectorAll('[id^="delete-btn-"]').forEach(btn => {
+            btn.style.display = 'flex';
+        });
+    }
+});
+
+// Animation pour les changements de quantité
+document.addEventListener('htmx:afterSwap', function(evt) {
+    if (evt.target.id === 'cart-items') {
+        // Petite animation pour les cartes mises à jour
+        evt.target.querySelectorAll('.cart-item-card').forEach(card => {
+            card.style.animation = 'none';
+            setTimeout(() => {
+                card.style.animation = 'none';
+            }, 10);
+        });
+    }
+});
+
+// Feedback audio optionnel (désactivé par défaut)
+function playCartSound() {
+    try {
+        const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+        audio.volume = 0.1;
+        audio.play();
+    } catch(e) {
+        // Silently fail if audio not supported
+    }
+}
+</script>
+
+
+
+
+
+{% comment %} {% load static %}
+
 <div id="cart-items">
   {% for item in cart.items.all %}
     <div class="cart-item" id="cart-item-{{ item.id }}">
-      <!-- Image -->
+      &lt;!&ndash; Image &ndash;&gt;
       <div class="cart-item-image">
         {% if item.product.image %}
           <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
@@ -12,9 +554,8 @@
             <i class="fas fa-seedling"></i>
           </div>
         {% endif %}
-      </div>
-
-      <!-- Détails -->
+      </div>-->
+      &lt;!&ndash; Détails &ndash;&gt;
       <div class="cart-item-details">
         <h4 class="cart-item-name">{{ item.product.name }}</h4>
         <p class="cart-item-producer">
@@ -23,13 +564,13 @@
 
         <div class="d-flex flex-wrap justify-content-between align-items-end mt-3">
           <div>
-            <div class="cart-item-price">{{ item.product.price|floatformat:2 }} € / unité</div>
-            <div class="cart-item-subtotal mt-1">Sous-total : €{{ item.get_subtotal|floatformat:2 }}</div>
+            <div class="cart-item-price">{{ item.product.price|floatformat:2 }} fg / unité</div>
+            <div class="cart-item-subtotal mt-1">Sous-total : fg {{ item.get_subtotal|floatformat:2 }}</div>
           </div>
 
-          <!-- Contrôles quantité -->
+          &lt;!&ndash; Contrôles quantité &ndash;&gt;
           <div class="quantity-controls">
-            <button class="quantity-btn"
+           <button class="quantity-btn"
                     hx-post="{% url 'marketplace:update_cart_quantity' item.id %}"
                     hx-vals='{"quantity_change": -1}'
                     hx-target="#cart-items"
@@ -38,7 +579,7 @@
               <i class="fas fa-minus"></i>
             </button>
 
-            <span class="quantity-display">{{ item.quantity }}</span>
+           <span class="quantity-display">{{ item.quantity }}</span>
 
             <button class="quantity-btn"
                     hx-post="{% url 'marketplace:update_cart_quantity' item.id %}"
@@ -51,9 +592,9 @@
         </div>
       </div>
 
-      <!-- Suppression avec Toggle -->
+ &lt;!&ndash; Suppression avec Toggle &ndash;&gt;
       <div>
-        <!-- Bouton Supprimer (affiché par défaut) -->
+       &lt;!&ndash; Bouton Supprimer (affiché par défaut) &ndash;&gt;
         <button id="delete-btn-{{ item.id }}" 
                 class="btn btn-outline-danger btn-sm rounded-pill px-4"
                 hx-on:click="
@@ -62,8 +603,7 @@
                 ">
           <i class="fas fa-trash-alt mr-1"></i> Supprimer
         </button>
-        
-        <!-- Bouton Confirmer (caché par défaut) -->
+        &lt;!&ndash; Bouton Confirmer (caché par défaut) &ndash;&gt;
         <button id="confirm-btn-{{ item.id }}" 
                 style="display: none;"
                 hx-delete="{% url 'marketplace:remove_from_cart' item.id %}"
@@ -71,106 +611,32 @@
                 hx-swap="innerHTML"
                 class="btn btn-danger btn-sm rounded-pill px-4"
                 hx-on:click="this.style.display='none';">
-          <i class="fas fa-exclamation-triangle mr-1"></i> Confirmer ?
+     <i class="fas fa-exclamation-triangle mr-1"></i> Confirmer ?
         </button>
       </div>
     </div>
   {% endfor %}
-
   {% if not cart.items.exists %}
     <div class="text-center py-5">
-      <i class="fas fa-shopping-cart" style="font-size: 4rem; color: var(--light-sage);"></i>
+    <i class="fas fa-shopping-cart" style="font-size: 4rem; color: var(&#45;&#45;light-sage);"></i>
       <p class="mt-3 text-muted">Votre panier est vide</p>
-    </div>
+   </div>
   {% endif %}
 </div>
 {% block extra_js %}
 <script>
   document.addEventListener('click', function(e) {
-    // Si on clique en dehors d'un bouton de suppression
-    if (!e.target.closest('.cart-item')) {
-      document.querySelectorAll('#confirm-btn-{{ item.id }}').forEach(btn => {
+    // Si on clique en dehors d'un bouton de suppression-->
+    if (!e.target.closest('.cart-item')) 
+    document.querySelectorAll('#confirm-btn-{{ item.id }}').forEach(btn => {
         btn.style.display = 'none';
       });
       document.querySelectorAll('#delete-btn-{{ item.id }}').forEach(btn => {
         btn.style.display = 'inline-block';
       });
-    }
-  });
+    
+ });
 </script>
 {% endblock %}
 
-
-{% comment %} {% load static %}
-
-<div id="cart-items">
-  {% for item in cart.items.all %}
-    <div class="cart-item" id="cart-item-{{ item.id }}">
-      <!-- Image -->
-      <div class="cart-item-image">
-        {% if item.product.image %}
-          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
-        {% else %}
-          <div class="no-image d-flex align-items-center justify-content-center">
-            <i class="fas fa-seedling"></i>
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Détails -->
-      <div class="cart-item-details">
-        <h4 class="cart-item-name">{{ item.product.name }}</h4>
-        <p class="cart-item-producer">
-          <i class="fas fa-user mr-1"></i> Par {{ item.product.producer.user.username }}
-        </p>
-
-        <div class="d-flex flex-wrap justify-content-between align-items-end mt-3">
-          <div>
-            <div class="cart-item-price">{{ item.product.price|floatformat:2 }} € / unité</div>
-            <div class="cart-item-subtotal mt-1">Sous-total : €{{ item.get_subtotal|floatformat:2 }}</div>
-          </div>
-
-          <!-- Contrôles quantité -->
-          <div class="quantity-controls">
-            <button class="quantity-btn"
-                    hx-post="{% url 'marketplace:update_cart_quantity' item.id %}"
-                    hx-vals='{"quantity_change": -1}'
-                    hx-target="#cart-items"
-                    hx-swap="innerHTML"
-                    {% if item.quantity <= 1 %}disabled{% endif %}>
-              <i class="fas fa-minus"></i>
-            </button>
-
-            <span class="quantity-display">{{ item.quantity }}</span>
-
-            <button class="quantity-btn"
-                    hx-post="{% url 'marketplace:update_cart_quantity' item.id %}"
-                    hx-vals='{"quantity_change": 1}'
-                    hx-target="#cart-items"
-                    hx-swap="innerHTML">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Suppression -->
-      <div>
-        <button class="btn btn-outline-danger btn-sm rounded-pill px-4"
-                hx-delete="{% url 'marketplace:remove_from_cart' item.id %}"
-                hx-target="#cart-items"
-                hx-swap="innerHTML"
-                hx-confirm="Supprimer cet article du panier ?">
-          <i class="fas fa-trash-alt mr-1"></i> 
-        </button>
-      </div>
-    </div>
-  {% endfor %}
-
-  {% if not cart.items.exists %}
-    <div class="text-center py-5">
-      <i class="fas fa-shopping-cart" style="font-size: 4rem; color: #c8e6c9;"></i>
-      <p class="mt-3 text-muted">Votre panier est vide</p>
-    </div>
-  {% endif %}
-</div> {% endcomment %}
+ {% endcomment %}

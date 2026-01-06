@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes Notifications - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+<style>
+  .notifications-header {
+    text-align: center;
+    padding: 4rem 0 3rem;
+    background: linear-gradient(rgba(46, 125, 50, 0.08), transparent);
+    margin-bottom: 2rem;
+  }
+
+  .notifications-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+  }
+
+  .notification-summary {
+    font-size: 1.3rem;
+    color: var(--secondary-green);
+  }
+
+  .filter-bar {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .notification-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border-left: 6px solid var(--secondary-green);
+    transition: all 0.3s ease;
+  }
+
+  .notification-card.unread {
+    background: var(--light-sage);
+    border-left-color: var(--primary-green);
+    box-shadow: 0 12px 35px rgba(46, 125, 50, 0.18);
+  }
+
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .notification-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .notification-meta {
+    text-align: right;
+    font-size: 0.95rem;
+    color: #666;
+  }
+
+  .notification-type-badge {
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .type-new-order { background: #e3f2fd; color: #1976d2; }
+  .type-low-stock { background: #fff3e0; color: #ef6c00; }
+  .type-order-update { background: #e8f5e9; color: #2e7d32; }
+  .type-message { background: #f3e5f5; color: #7b1fa2; }
+  .type-info { background: #e0f7fa; color: #006064; }
+  .type-payment-success { background: #e8f5e9; color: #2e7d32; }
+  .type-payment-failed { background: #ffebee; color: #c62828; }
+
+  .notification-message {
+    color: #444;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  .notification-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn-mark-read {
+    background: transparent;
+    border: 2px solid var(--secondary-green);
+    color: var(--secondary-green);
+    padding: 0.6rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .btn-mark-read:hover {
+    background: var(--secondary-green);
+    color: white;
+  }
+
+  .empty-notifications {
+    text-align: center;
+    padding: 8rem 2rem;
+    color: #666;
+  }
+
+  .empty-notifications i {
+    font-size: 6rem;
+    color: var(--light-sage);
+    margin-bottom: 2rem;
+    opacity: 0.8;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .notification-header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .notification-meta {
+      text-align: left;
+    }
+    .notification-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .notification-actions .btn {
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-header">
+  <div class="container">
+    <h1 class="notifications-title">Mes Notifications</h1>
+    <p class="notification-summary">
+      {% if unread_count > 0 %}
+        <i class="fas fa-bell text-success me-2"></i>
+        <strong>{{ unread_count }} notification{{ unread_count|pluralize }} non lue{{ unread_count|pluralize }}</strong>
+      {% else %}
+        <i class="fas fa-check-circle text-success me-2"></i>
+        Vous êtes à jour !
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Barre d'actions et filtres -->
+  <div class="filter-bar">
+    <div>
+      <strong>{{ notifications|length }} notification{{ notifications|length|pluralize }} au total</strong>
+    </div>
+    <div>
+      <form method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" name="mark_all_read" class="btn btn-outline-success rounded-pill px-5 py-2">
+          <i class="fas fa-check-double me-2"></i> Tout marquer comme lu
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Liste des notifications -->
+  {% if notifications %}
+    {% for notif in notifications %}
+      <div class="notification-card {% if not notif.is_read %}unread{% endif %}">
+        <div class="notification-header">
+          <div>
+            <h3 class="notification-title">
+              {% if notif.type == 'NEW_ORDER' %}
+                <i class="fas fa-shopping-cart text-primary"></i>
+              {% elif notif.type == 'LOW_STOCK' %}
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+              {% elif notif.type == 'ORDER_UPDATE' %}
+                <i class="fas fa-sync text-info"></i>
+              {% elif notif.type == 'MESSAGE' %}
+                <i class="fas fa-envelope text-purple"></i>
+              {% elif notif.type == 'PAYMENT_SUCCESS' %}
+                <i class="fas fa-check-circle text-success"></i>
+              {% elif notif.type == 'PAYMENT_FAILED' %}
+                <i class="fas fa-times-circle text-danger"></i>
+              {% else %}
+                <i class="fas fa-info-circle text-secondary"></i>
+              {% endif %}
+              {{ notif.title }}
+            </h3>
+            <span class="notification-type-badge type-{{ notif.type|lower }}">
+              {{ notif.get_type_display }}
+            </span>
+          </div>
+          <div class="notification-meta">
+            <div><strong>{{ notif.created_at|date:"d M Y" }}</strong></div>
+            <div>{{ notif.created_at|time:"H:i" }}</div>
+            {% if not notif.is_read %}
+              <small class="text-danger"><i class="fas fa-circle" style="font-size: 0.6rem;"></i> Non lue</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <p class="notification-message">{{ notif.message }}</p>
+
+        <div class="notification-actions">
+          {% if not notif.is_read %}
+            <form method="post" class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="notification_id" value="{{ notif.id }}">
+              <button type="submit" name="mark_read" class="btn btn-mark-read">
+                <i class="fas fa-eye me-2"></i> Marquer comme lue
+              </button>
+            </form>
+          {% endif %}
+
+          {% if notif.related_order %}
+            <a href="{% url 'dashboard:order_detail' notif.related_order.id %}" class="btn btn-success rounded-pill px-4">
+              <i class="fas fa-receipt me-2"></i> Voir la commande
+            </a>
+          {% endif %} 
+
+          {% if notif.related_product %}
+            <a href="{% url 'dashboard:product_detail' notif.related_product.id %}" class="btn btn-outline-success rounded-pill px-4">
+              <i class="fas fa-seedling me-2"></i> Voir le produit
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Pagination améliorée -->
+    {% if is_paginated %}
+      <nav aria-label="Pagination des notifications" class="mt-5">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link rounded-pill px-4" href="?page={{ page_obj.previous_page_number }}">
+                <i class="fas fa-chevron-left me-2"></i> Précédent
+              </a>
+            </li>
+          {% endif %}
+
+          <li class="page-item disabled">
+            <span class="page-link">
+              Page {{ page_obj.number }} sur {{ paginator.num_pages }}
+            </span>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link rounded-pill px-4" href="?page={{ page_obj.next_page_number }}">
+                Suivant <i class="fas fa-chevron-right ms-2"></i>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-notifications">
+      <i class="fas fa-bell-slash"></i>
+      <h3 class="text-muted mt-4">Aucune notification</h3>
+      <p class="lead text-muted">Tout est calme pour le moment. Revenez plus tard !</p>
+      <a href="{% url 'marketplace:home' %}" class="btn btn-success rounded-pill px-5 py-3 mt-4">
+        <i class="fas fa-home me-2"></i> Retour à l'accueil
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes Notifications - AgriBusiness{% endblock %}
+
+{% block extra_css %}
+<style>
+  .notifications-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    background: linear-gradient(rgba(46, 125, 50, 0.05), transparent);
+  }
+
+  .notifications-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--primary-green);
+  }
+
+  .notification-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border-left: 6px solid var(--secondary-green);
+    transition: all 0.3s ease;
+  }
+
+  .notification-card.unread {
+    background: var(--light-sage);
+    border-left-color: var(--primary-green);
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.15);
+  }
+
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .notification-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin: 0;
+  }
+
+  .notification-meta {
+    text-align: right;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .notification-type-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+  }
+
+  .type-new-order { background: #e3f2fd; color: #1976d2; }
+  .type-low-stock { background: #fff3e0; color: #ef6c00; }
+  .type-order-update { background: #e8f5e9; color: #2e7d32; }
+  .type-message { background: #f3e5f5; color: #7b1fa2; }
+  .type-info { background: #e0f7fa; color: #006064; }
+
+  .notification-message {
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .notification-actions {
+    margin-top: 1rem;
+  }
+
+  .btn-mark-read {
+    background: transparent;
+    border: 2px solid var(--secondary-green);
+    color: var(--secondary-green);
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+  }
+
+  .btn-mark-read:hover {
+    background: var(--secondary-green);
+    color: white;
+  }
+
+  .empty-notifications {
+    text-align: center;
+    padding: 6rem 2rem;
+    color: #666;
+  }
+
+  .empty-notifications i {
+    font-size: 5rem;
+    color: var(--light-sage);
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-header">
+  <div class="container">
+    <h1 class="notifications-title">Mes Notifications</h1>
+    {% if unread_count > 0 %}
+      <p class="lead text-success">
+        <i class="fas fa-bell me-2"></i>
+        {{ unread_count }} notification{{ unread_count|pluralize }} non lue{{ unread_count|pluralize }}
+      </p>
+    {% else %}
+      <p class="lead text-muted">Vous êtes à jour !</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  <div class="text-end mb-4">
+    <form method="post" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" name="mark_all_read" class="btn btn-outline-success rounded-pill px-5 py-2">
+        <i class="fas fa-check-double me-2"></i> Tout marquer comme lu
+      </button>
+    </form>
+  </div>
+
+  {% if notifications %}
+    {% for notif in notifications %}
+      <div class="notification-card {% if not notif.is_read %}unread{% endif %}">
+        <div class="notification-header">
+          <div>
+            <h3 class="notification-title">
+              {% if notif.type == 'NEW_ORDER' %}
+                <i class="fas fa-shopping-cart me-2 text-primary"></i>
+              {% elif notif.type == 'LOW_STOCK' %}
+                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+              {% elif notif.type == 'ORDER_UPDATE' %}
+                <i class="fas fa-sync me-2 text-info"></i>
+              {% elif notif.type == 'MESSAGE' %}
+                <i class="fas fa-envelope me-2 text-purple"></i>
+              {% else %}
+                <i class="fas fa-info-circle me-2 text-secondary"></i>
+              {% endif %}
+              {{ notif.title }}
+            </h3>
+            <span class="notification-type-badge type-{{ notif.type|lower }}">
+              {{ notif.get_type_display }}
+            </span>
+          </div>
+          <div class="notification-meta">
+            <div>{{ notif.created_at|date:"d/m/Y" }}</div>
+            <div>{{ notif.created_at|time:"H:i" }}</div>
+          </div>
+        </div>
+
+        <p class="notification-message">{{ notif.message }}</p>
+
+        <div class="notification-actions">
+          {% if notif.related_order %}
+            <a href="{% url 'orders:order_detail' notif.related_order.id %}" class="btn btn-success rounded-pill px-4">
+              <i class="fas fa-eye me-2"></i>Voir la commande
+            </a>
+          {% endif %}
+          {% if notif.related_product %}
+            <a href="{% url 'marketplace:product_detail' notif.related_product.id %}" class="btn btn-outline-success rounded-pill px-4">
+              <i class="fas fa-seedling me-2"></i>Voir le produit
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+      <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link rounded-pill px-4" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+            </li>
+          {% endif %}
+
+          <li class="page-item disabled">
+            <span class="page-link">Page {{ page_obj.number }} / {{ paginator.num_pages }}</span>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link rounded-pill px-4" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-notifications">
+      <i class="fas fa-bell-slash"></i>
+      <h3 class="text-muted mt-4">Aucune notification</h3>
+      <p class="lead text-muted">Vous êtes à jour. Revenez plus tard !</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %} {% endcomment %}

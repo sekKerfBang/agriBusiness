@@ -1,0 +1,237 @@
+/* Variables */
+:root {
+  --color-primary: #2e7d32;
+  --color-primary-light: #4caf50;
+  --color-success: #1b5e20;
+  --shadow-soft: 0 10px 35px rgba(0, 0, 0, 0.09);
+  --shadow-strong: 0 20px 50px rgba(76, 175, 80, 0.35);
+  --radius-large: 28px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Layout */
+.cart-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* En-tête */
+.cart-header {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(46, 125, 50, 0.06));
+  border-radius: var(--radius-large);
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.cart-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../../images/pattern-leaves.svg') repeat;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.cart-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 0.8rem;
+}
+
+.cart-status {
+  font-size: 1.2rem;
+  color: var(--color-primary-light);
+  font-weight: 500;
+}
+
+.cart-total-amount {
+  font-weight: 800;
+  color: var(--color-success);
+}
+
+/* Résumé sticky */
+.cart-summary {
+  position: sticky;
+  top: 2rem;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  color: white;
+  border-radius: var(--radius-large);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.summary-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.summary-details {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-details dt {
+  opacity: 0.9;
+}
+
+.summary-details dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.total-label {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  padding-top: 1rem;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.total-value {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+/* Boutons */
+.btn-checkout {
+  width: 100%;
+  background: white;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 1.2rem;
+  border-radius: 60px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.btn-checkout:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  background: #f8f9fa;
+  color: var(--color-success);
+}
+
+.clear-cart-form .btn {
+  width: 100%;
+  margin-bottom: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  background: transparent;
+  transition: var(--transition);
+}
+
+.clear-cart-form .btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+.security-note {
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* État vide */
+.empty-cart-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-primary);
+}
+
+.empty-cart-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.empty-cart-state h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-cart-state .btn {
+  margin-top: 1.5rem;
+}
+
+/* Indicateur HTMX */
+.htmx-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.htmx-indicator[aria-hidden="true"] {
+  display: none;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid rgba(76, 175, 80, 0.2);
+  border-top-color: var(--color-primary-light);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .cart-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 576px) {
+  .cart-container {
+    padding: 1rem;
+  }
+  
+  .cart-header {
+    padding: 2.5rem 1rem;
+  }
+  
+  .cart-summary {
+    padding: 2rem;
+  }
+}

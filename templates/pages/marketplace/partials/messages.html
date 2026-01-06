@@ -1,0 +1,593 @@
+<!-- pages/marketplace/partials/messages.html -->
+{% if messages %}
+<div class="container mt-4 mb-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} fade show shadow-sm border-0 rounded-4 d-flex align-items-center gap-4 py-4 px-4 mb-3 position-relative overflow-hidden"
+             role="alert"
+             style="animation: slideInDown 0.5s ease-out;"
+             data-auto-dismiss="true">
+
+          <!-- Icône -->
+          <div class="alert-icon flex-shrink-0">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle text-danger" style="font-size: 3rem;"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle text-info" style="font-size: 3rem;"></i>
+            {% else %}
+              <i class="fas fa-bell text-primary" style="font-size: 3rem;"></i>
+            {% endif %}
+          </div>
+
+          <!-- Texte du message -->
+          <div class="alert-content flex-grow-1 pe-5">
+            <span class="fw-medium fs-5 d-block">{{ message }}</span>
+          </div>
+
+          <!-- Barre de progression fine en bas -->
+          <div class="position-absolute start-0 bottom-0 w-100" style="height: 4px;">
+            <div class="h-100 bg-success opacity-75" 
+                 style="width: 100%; animation: progressShrink 3s linear forwards; transition: width 0.3s ease;">
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- CSS Animations -->
+<style>
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes progressShrink {
+    from { width: 100%; margin:2rem; padding:3px ; border-radius:5px; box-shadow: 2px 4px #2b6d28ff; }
+    to { width: 0%;margin:2rem; padding:3px ; border-radius:5px; box-shadow: 2px 4px 0.9 #333; }
+  }
+
+  .alert {
+    border: none !important;
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .alert-success { 
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.22), rgba(46, 125, 50, 0.16)) !important; 
+    color: #1b5e20; 
+  }
+  .alert-error { 
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.22), rgba(211, 47, 47, 0.16)) !important; 
+    color: #c62828; 
+  }
+  .alert-warning { 
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.22), rgba(255, 152, 0, 0.16)) !important; 
+    color: #e65100; 
+  }
+  .alert-info { 
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.22), rgba(30, 136, 229, 0.16)) !important; 
+    color: #1565c0; 
+  }
+
+  /* Le texte ne touche jamais la barre */
+  .alert-content {
+    margin-left:10px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .alert {
+      py-3 px-3;
+      gap-3;
+    }
+    .alert-content {
+      padding-bottom: 1.2rem;
+      font-size: 1rem;
+    }
+    .alert-icon i {
+      font-size: 1.8rem !important;
+    }
+  }
+</style>
+
+<!-- Script auto-dismiss (10 secondes) -->
+<script>
+  function initAutoDismissAlerts() {
+    document.querySelectorAll('.alert[role="alert"][data-auto-dismiss="true"]').forEach(alert => {
+      if (alert.dataset.processed) return;
+      alert.dataset.processed = 'true';
+
+      setTimeout(() => {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        setTimeout(() => {
+          if (alert.parentNode) alert.remove();
+        }, 500);
+      }, 3000); // 10 secondes
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initAutoDismissAlerts);
+  document.body.addEventListener('htmx:afterSwap', initAutoDismissAlerts);
+  document.body.addEventListener('htmx:afterOnLoad', initAutoDismissAlerts);
+</script>
+{% endif %}
+
+
+
+
+{% comment %} <!-- pages/marketplace/partials/messages.html -->
+{% if messages %}
+<div class="container mt-4 mb-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} fade show shadow-sm border-0 rounded-4 d-flex align-items-center gap-3 py-4 px-4 mb-3 position-relative overflow-hidden"
+             role="alert"
+             style="animation: slideInDown 0.5s ease-out; min-height: 80px;"
+             data-auto-dismiss="true">
+
+          <!-- Icône -->
+          <div class="alert-icon flex-shrink-0">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle text-success" style="font-size: 2rem;"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle text-danger" style="font-size: 2rem;"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle text-info" style="font-size: 2rem;"></i>
+            {% else %}
+              <i class="fas fa-bell text-primary" style="font-size: 2rem;"></i>
+            {% endif %}
+          </div>
+
+          <!-- Texte du message -->
+          <div class="alert-content flex-grow-1 pe-4">
+            <span class="fw-medium fs-5">{{ message }}</span>
+          </div>
+
+          <!-- Barre de progression (en bas, sans couvrir le texte) -->
+          <div class="position-absolute start-0 bottom-0 w-100" style="height: 5px; background: rgba(255,255,255,0.2);">
+            <div class="h-100" style="background: white; width: 100%; animation: progressShrink 10s linear forwards; transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- CSS -->
+<style>
+  @keyframes slideInDown {
+    from { opacity: 1; transform: translateY(-30px); }
+    to { opacity: 3 ; transform: translateY(0); }
+  }
+
+  @keyframes progressShrink {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  .alert {
+    border: none !important;
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .alert-success { background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(46, 125, 50, 0.15)) !important; color: #1b5e20; }
+  .alert-error { background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(211, 47, 47, 0.15)) !important; color: #c62828; }
+  .alert-warning { background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.15)) !important; color: #e65100; }
+  .alert-info { background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(30, 136, 229, 0.15)) !important; color: #1565c0; }
+
+  /* Plus de place pour le texte */
+  .alert-content {
+    padding-bottom: 2rem; /* Évite que la barre touche le texte */
+  }
+
+  @media (max-width: 768px) {
+    .alert {
+      py-3 px-3;
+      font-size: 0.95rem;
+    }
+    .alert-icon i {
+      font-size: 1.7rem !important;
+      padding-bottom: 2rem;
+    }
+    .alert-content span {
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<!-- Script auto-dismiss robuste -->
+<script>
+  function initAutoDismissAlerts() {
+    document.querySelectorAll('.alert[role="alert"][data-auto-dismiss="true"]').forEach(alert => {
+      if (alert.dataset.processed) return;
+      alert.dataset.processed = 'true';
+
+      setTimeout(() => {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        setTimeout(() => alert.remove(), 500);
+      }, 3000); // 10 secondes
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initAutoDismissAlerts);
+  document.body.addEventListener('htmx:afterSwap', initAutoDismissAlerts);
+  document.body.addEventListener('htmx:afterOnLoad', initAutoDismissAlerts);
+</script>
+{% endif %} {% endcomment %}
+
+
+
+
+{% comment %} <!-- pages/marketplace/partials/messages.html -->
+{% if messages %}
+<div class="container mt-4 mb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} fade show shadow-sm border-0 rounded-4 position-relative overflow-hidden d-flex align-items-center gap-3 py-3 px-4 mb-3"
+             role="alert"
+             style="animation: slideInDown 0.5s ease-out;"
+             data-auto-dismiss="true">
+
+          <!-- Icône selon le type -->
+          <div class="alert-icon flex-shrink-0">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle text-success" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle text-danger" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle text-warning" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle text-info" style="font-size: 1.8rem;"></i>
+            {% else %}
+              <i class="fas fa-bell text-primary" style="font-size: 1.8rem;"></i>
+            {% endif %}
+          </div>
+
+          <!-- Message -->
+          <div class="alert-content flex-grow-1">
+            <span class="fw-medium">{{ message }}</span>
+          </div>
+
+          <!-- Barre de progression visuelle -->
+          <div class="position-absolute bottom-0 start-0 w-100 bg-light opacity-25" style="height: 4px;">
+            <div class="h-100 bg-white" style="width: 100%; animation: progressShrink 10s linear forwards;"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- CSS Animations -->
+<style>
+  @keyframes slideInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes progressShrink {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  .alert {
+    border: none !important;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .alert-success { background: linear-gradient(135deg, rgba(76, 175, 80, 0.18), rgba(46, 125, 50, 0.12)); color: #1b5e20; }
+  .alert-error { background: linear-gradient(135deg, rgba(244, 67, 54, 0.18), rgba(211, 47, 47, 0.12)); color: #c62828; }
+  .alert-warning { background: linear-gradient(135deg, rgba(255, 193, 7, 0.18), rgba(255, 152, 0, 0.12)); color: #e65100; }
+  .alert-info { background: linear-gradient(135deg, rgba(33, 150, 243, 0.18), rgba(30, 136, 229, 0.12)); color: #1565c0; }
+
+  @media (max-width: 768px) {
+    .alert { padding: 1rem 1.2rem; font-size: 0.95rem; }
+    .alert-icon i { font-size: 1.6rem !important; }
+  }
+</style>
+
+<!-- Script unique et robuste pour auto-dismiss -->
+<script>
+  function initAutoDismissAlerts() {
+    document.querySelectorAll('.alert[role="alert"][data-auto-dismiss="true"]').forEach(alert => {
+      // Éviter les doublons
+      if (alert.dataset.processed) return;
+      alert.dataset.processed = 'true';
+
+      setTimeout(() => {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.remove();
+          }
+        }, 500); // Durée de l'animation fade Bootstrap
+      }, 3000); // 10 secondes
+    });
+  }
+
+  // Au chargement initial
+  document.addEventListener('DOMContentLoaded', initAutoDismissAlerts);
+
+  // Après chaque swap HTMX (nouveaux messages via OOB)
+  document.body.addEventListener('htmx:afterSwap', (event) => {
+    // On vérifie si on a touché le container des messages ou n'importe où (plus large = plus sûr)
+    if (event.detail.target.id === 'messages-container' || 
+        event.detail.target.closest('#messages-container') ||
+        event.detail.xhr.response.includes('alert')) {
+      initAutoDismissAlerts();
+    }
+  });
+
+  // Bonus : si HTMX recharge complètement la page ou insère ailleurs
+  document.body.addEventListener('htmx:afterOnLoad', initAutoDismissAlerts);
+</script>
+{% endif %} {% endcomment %}
+
+
+
+{% comment %} <!-- pages/marketplace/partials/messages.html -->
+{% if messages %}
+<div class="container mt-4 mb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} fade show shadow-sm border-0 rounded-4 position-relative overflow-hidden d-flex align-items-center gap-3 py-3 px-4 mb-3"
+             role="alert"
+             style="animation: slideInDown 0.5s ease-out;"
+             id="alert-{{ forloop.counter }}">
+
+          <!-- Icône personnalisée selon le type de message -->
+          <div class="alert-icon flex-shrink-0">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle text-success" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle text-danger" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle text-warning" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle text-info" style="font-size: 1.8rem;"></i>
+            {% else %}
+              <i class="fas fa-bell text-primary" style="font-size: 1.8rem;"></i>
+            {% endif %}
+          </div>
+
+          <!-- Contenu du message -->
+          <div class="alert-content flex-grow-1">
+            <span class="fw-medium">{{ message }}</span>
+          </div>
+
+          <!-- Barre de progression discrète (optionnelle mais élégante) -->
+          <div class="position-absolute bottom-0 start-0 w-100 bg-light opacity-25" style="height: 4px;">
+            <div class="h-100 bg-white" style="width: 100%; animation: progressShrink 10s linear forwards;"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Animations CSS -->
+<style>
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes progressShrink {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  .alert {
+    border: none !important;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .alert-success {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.18), rgba(46, 125, 50, 0.12));
+    color: #1b5e20;
+  }
+
+  .alert-error {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.18), rgba(211, 47, 47, 0.12));
+    color: #c62828;
+  }
+
+  .alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.18), rgba(255, 152, 0, 0.12));
+    color: #e65100;
+  }
+
+  .alert-info {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.18), rgba(30, 136, 229, 0.12));
+    color: #1565c0;
+  }
+
+  @media (max-width: 768px) {
+    .alert {
+      padding: 1rem 1.2rem;
+      font-size: 0.95rem;
+    }
+    .alert-icon i {
+      font-size: 1.6rem !important;
+    }
+  }
+</style>
+
+<!-- Script pour disparition automatique après 10 secondes -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Tous les alertes présents au chargement ou ajoutés via HTMX
+    const alerts = document.querySelectorAll('.alert[role="alert"]');
+
+    alerts.forEach(alert => {
+      // Disparition douce après 10 secondes
+      setTimeout(() => {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        // Suppression complète du DOM après l'animation
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.remove();
+          }
+        }, 500); // Temps de l'animation fade de Bootstrap
+      }, 10000);
+    });
+  });
+
+  // Gestion HTMX : disparition des nouveaux messages ajoutés dynamiquement
+  document.body.addEventListener('htmx:afterSwap', (event) => {
+    if (event.target.id === 'messages-container' || event.target.closest('#messages-container')) {
+      const newAlerts = document.querySelectorAll('.alert[role="alert"]');
+      newAlerts.forEach(alert => {
+        // Éviter de dupliquer le timer si déjà présent
+        if (!alert.dataset.timerSet) {
+          alert.dataset.timerSet = 'true';
+          setTimeout(() => {
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+            setTimeout(() => alert.remove(), 500);
+          }, 10000);
+        }
+      });
+    }
+  });
+</script>
+{% endif %}  {% endcomment %}
+ 
+ 
+ 
+ 
+ {% comment %} {% if messages %}
+<div class="container mt-4 mb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0 rounded-4 position-relative overflow-hidden d-flex align-items-center gap-3 py-3 px-4 mb-3"
+             role="alert"
+             style="animation: slideInDown 0.5s ease-out;">
+
+          <!-- Icône personnalisée selon le type de message -->
+          <div class="alert-icon flex-shrink-0">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle text-success" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle text-danger" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle text-warning" style="font-size: 1.8rem;"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle text-info" style="font-size: 1.8rem;"></i>
+            {% else %}
+              <i class="fas fa-bell text-primary" style="font-size: 1.8rem;"></i>
+            {% endif %}
+          </div>
+
+          <!-- Contenu du message -->
+          <div class="alert-content flex-grow-1">
+            <span class="fw-medium">{{ message }}</span>
+          </div>
+
+          <!-- Bouton de fermeture -->
+          <button type="close"
+                  class="btn-close btn-close-white opacity-75"
+                  data-bs-dismiss="alert"
+                  aria-label="Fermer"
+                  style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));"> 
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Animation CSS personnalisée -->
+<style>
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .alert {
+    border: none !important;
+    backdrop-filter: blur(10px);
+  }
+
+  .alert-success {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(46, 125, 50, 0.1));
+    color: #1b5e20;
+  }
+
+  .alert-error {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.15), rgba(211, 47, 47, 0.1));
+    color: #c62828;
+  }
+
+  .alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
+    color: #e65100;
+  }
+
+  .alert-info {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(30, 136, 229, 0.1));
+    color: #1565c0;
+  }
+
+  @media (max-width: 768px) {
+    .alert {
+      padding: 1rem 1.2rem;
+      font-size: 0.95rem;
+    }
+    .alert-icon i {
+      font-size: 1.6rem !important;
+    }
+  }
+</style>
+{% endif %} {% endcomment %}

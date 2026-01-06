@@ -3,10 +3,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AgriBusiness - La marketplace agricole{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}AgroBusiness - Marketplace Agricole{% endblock %}</title>
     <link rel="icon" href="{% static 'marketplace/images/logo/agribusiness.jpg' %}" type="image/x-icon">
-    {% csrf_token %}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -58,7 +57,7 @@
             color: var(--text-dark) !important;
             transition: all 0.3s;
             position: relative;
-        }
+        }  
         .nav-link:hover {
             color: var(--primary-green) !important;
             transform: translateY(-2px);
@@ -92,9 +91,30 @@
         .logout-btn:hover {
             color: var(--primary-green) !important;
         }
+
+        /* Badge notifications (cloche) */
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #d32f2f;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
         .hero-section {
             position: relative;
-            height: 500px;
+            height: 60vh;
+            min-height: 300px;
             background: linear-gradient(rgba(46, 125, 50, 0.7), rgba(62, 39, 35, 0.8)), 
                         url('https://images.unsplash.com/photo-1500388715000-9a288a80f10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center center / cover no-repeat;
             display: flex;
@@ -107,12 +127,12 @@
         .hero-content h1 {
             font-family: 'Poppins', sans-serif;
             font-weight: 700;
-            font-size: 4rem;
+            font-size: calc(2.5rem + 1.5vw);
             margin-bottom: 1rem;
             text-shadow: 3px 3px 10px rgba(0,0,0,0.5);
         }
         .hero-content p {
-            font-size: 1.4rem;
+            font-size: calc(1rem + 0.4vw);
             max-width: 800px;
             margin: 0 auto 2.5rem;
             text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
@@ -168,12 +188,6 @@
             transform: translateY(-8px);
             box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
         }
-        @media (max-width: 576px) {
-            .pagination .page-link {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.9rem;
-            }
-        }
         .footer-custom {
             background: var(--primary-green);
             color: white;
@@ -187,213 +201,372 @@
         .footer-custom a:hover {
             color: var(--accent-wheat);
         }
-        .social-links a {
-            font-size: 1.5rem;
-            margin-right: 15px;
-        }
-        .btn-inscription-footer {
-            background: var(--accent-wheat);
-            color: var(--dark-earth);
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-inscription-footer:hover {
-            background: white;
-            color: var(--primary-green);
-            transform: translateY(-3px);
-        }
-        @media (max-width: 768px) {
-            .hero-content h1 {
-                font-size: 2.8rem;
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 992px) {
+            .navbar-nav {
+                text-align: center;
             }
+            .nav-link {
+                margin: 10px 0;
+            }
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
+            .logout-btn {
+                padding: 0.5rem 0;
+            }
+        }
+
+        @media (max-width: 768px) {
             .hero-section {
-                height: 400px;
+                height: 50vh;
+                min-height: 250px;
+                clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            }
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            .hero-content p {
+                font-size: 1.1rem;
+                padding: 0 15px;
+            }
+            .btn-hero {
+                padding: 12px 30px;
+                font-size: 1rem;
             }
             main {
                 padding-top: 80px;
+            }
+            .navbar-custom {
+                padding: 0.75rem 0;
+            }
+            .notification-badge {
+                top: -5px;
+                right: -5px;
+                min-width: 15px;
+                height: 15px;
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-section {
+                height: 40vh;
+                min-height: 200px;
+            }
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            .hero-content p {
+                font-size: 1rem;
+            }
+            .btn-hero {
+                padding: 10px 25px;
+                font-size: 0.9rem;
+            }
+            .footer-custom {
+                padding: 2rem 0 1rem;
+            }
+            .social-links a {
+                margin: 0 10px;
             }
         }
     </style>
 </head>
 <body>
-    <header class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top">
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" id="csrf-token">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-seedling"></i>
-                AgroBusiness
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
+<header class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" id="csrf-token">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-seedling"></i> AgroBusiness
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'marketplace:home' %}">
+                        <i class="fas fa-store me-1"></i> Marketplace
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'marketplace:home' %}">
-                            <i class="fas fa-store mr-1"></i> Marketplace
+                        <a class="nav-link" href="{% url 'utilisateur:profile' %}">
+                            <i class="fas fa-user-circle me-1"></i> Profil
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard:index' %}">
-                            <i class="fas fa-chart-line mr-1"></i> Dashboard
+
+                    <!-- Notifications avec badge -->
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="{% url 'utilisateur:notifications' %}">
+                            <i class="fas fa-bell me-1"></i> Notifications
+                            {% if unread_notifications_count > 0 %}
+                                <span class="notification-badge">{{ unread_notifications_count }}</span>
+                            {% endif %}
                         </a>
                     </li>
-                    {% if user.is_authenticated %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:cart' %}">
+                            <i class="fas fa-shopping-cart me-1"></i> Panier
+                            <span class="badge badge-pill badge-success">{{ cart_count }}</span>
+                        </a>
+                    </li>
+
+                    {% if user.is_entreprise %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'utilisateur:profile' %}">
-                                <i class="fas fa-user-circle mr-1"></i> Mon Profil
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'marketplace:cart' %}">
-                                <i class="fas fa-shopping-cart mr-1"></i> Panier 
-                                <span id="cart-count" class="badge badge-pill badge-success">{{ cart_count }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <form action="{% url 'utilisateur:logout' %}" method="post" class="logout-form">
-                                {% csrf_token %}
-                                <button type="submit" class="logout-btn">
-                                    <i class="fas fa-sign-out-alt mr-1"></i> Déconnexion
-                                </button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-outline-success ml-2 px-4" href="{% url 'utilisateur:login' %}">
-                                <i class="fas fa-sign-in-alt mr-1"></i> Connexion
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-success ml-2 px-4" href="{% url 'utilisateur:register' %}">
-                                <i class="fas fa-user-plus mr-1"></i> S'inscrire
+                            <a class="nav-link" href="{% url 'dashboard:index' %}">
+                                <i class="fas fa-chart-line me-1"></i> Dashboard
                             </a>
                         </li>
                     {% endif %}
-                </ul>
-            </div>
-        </div>
-    </header>
-    {% if request.path == '/' or request.path == '/home/' %}
-    <section class="hero-section">
-        <div class="hero-content">
-            <h1>Connectons Agriculteurs & Professionnels</h1>
-            <p>La marketplace dédiée au commerce des produits agricoles. Simple, rapide et efficace.</p>
-            <a href="{% url 'marketplace:home' %}" class="btn btn-hero">
-                <i class="fas fa-leaf mr-2"></i> Explorer le Marché
-            </a>
-        </div>
-    </section>
-    {% endif %}
-    <main>
-        <div class="container">
-            {% block content %}{% endblock %}
-        </div>
-    </main>
-    {% block footer %}
-    <footer class="footer-custom">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-seedling mr-2"></i> AgriBusiness</h5>
-                    <p>La première marketplace dédiée aux professionnels de l'agriculture.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Liens Rapides</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'marketplace:home' %}">Marketplace</a></li>
-                        <li><a href="#">Devenir Vendeur</a></li>
-                        <li><a href="#">Tarifs</a></li>
-                        <li><a href="#">Aide & FAQ</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Informations</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#">À Propos</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Mentions Légales</a></li>
-                        <li><a href="#">Confidentialité</a></li>
-                    </ul>
-                    {% if not user.is_authenticated %}
-                    <div class="mt-4">
-                        <a href="{% url 'utilisateur:register' %}" class="btn btn-inscription-footer">
-                            <i class="fas fa-user-plus mr-2"></i> S'inscrire gratuitement
+
+                    <li class="nav-item">
+                        <form action="{% url 'utilisateur:logout' %}" method="post" class="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">
+                                <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-success ml-2 px-4" href="{% url 'utilisateur:login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Connexion
                         </a>
-                    </div>
-                    {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-success ml-2 px-4" href="{% url 'utilisateur:register' %}">
+                            <i class="fas fa-user-plus me-1"></i> S'inscrire
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</header>
+ {% comment %} <div id="messages-container" class="mb-4">
+      {% include "pages/marketplace/partials/messages.html" %}
+    </div> {% endcomment %}
+    <!-- Messages Django sous forme de toasts flottants (haut droite) -->
+{% comment %} <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080; margin-top: 80px;">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="toast align-items-center text-white border-0 shadow-lg show
+          {% if message.tags == 'success' %}bg-success
+          {% elif message.tags == 'error' %}bg-danger
+          {% elif message.tags == 'warning' %}bg-warning text-dark
+          {% elif message.tags == 'info' %}bg-info
+          {% else %}bg-primary{% endif %}"
+           role="alert" aria-live="assertive" aria-atomic="true"
+           data-bs-delay="4000">
+        <div class="d-flex">
+          <div class="toast-body fw-semibold">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% else %}
+              <i class="fas fa-bell me-2"></i>
+            {% endif %}
+            {{ message }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div> {% endcomment %}
+
+
+{% if request.path == '/' or request.path == '/home/' %}
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>Connectons Agriculteurs & Professionnels</h1>
+        <p>La marketplace dédiée au commerce des produits agricoles. Simple, rapide et efficace.</p>
+        <a href="{% url 'marketplace:home' %}" class="btn btn-hero">
+            <i class="fas fa-leaf me-2"></i> Explorer le Marché
+        </a>
+    </div>
+</section>
+{% endif %}
+
+<main>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+{% block footer %}
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 mb-4">
+                <h5><i class="fas fa-seedling me-2"></i> AgriBusiness</h5>
+                <p>La première marketplace dédiée aux professionnels de l'agriculture.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
                 </div>
             </div>
-            <hr style="background: rgba(255,255,255,0.2);">
-            <div class="text-center mt-3">
-                <p class="mb-0">&copy; 2025 AgriBusiness. Tous droits réservés. 
-                    <i class="fas fa-heart text-danger"></i> Dédié aux agriculteurs.
-                </p>
+           
+                {% if not user.is_authenticated %}
+                <div class="mt-4">
+                    <a href="{% url 'utilisateur:register' %}" class="btn btn-inscription-footer">
+                        <i class="fas fa-user-plus me-2"></i> S'inscrire gratuitement
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
-    </footer>
-    {% endblock %}
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
+        <hr style="background: rgba(255,255,255,0.2);">
+        <div class="text-center mt-3">
+            <p class="mb-0">&copy; 2025 AgroBusiness. Tous droits réservés. 
+                <i class="fas fa-heart text-danger"></i> Dédié aux agriculteurs.
+            </p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script>
+    $(window).scroll(function() {
+        if ($(this).scrollTop() > 50) {
+            $('.navbar-custom').css({'background': 'rgba(255, 255, 255, 0.98)', 'box-shadow': '0 4px 20px rgba(0,0,0,0.15)'});
+        } else {
+            $('.navbar-custom').css({'background': 'rgba(255, 255, 255, 0.95)', 'box-shadow': '0 2px 15px rgba(0,0,0,0.1)'});
         }
-        document.body.addEventListener('htmx:configRequest', (event) => {
-            const csrfToken = getCookie('csrftoken');
-            if (csrfToken) {
-                event.detail.headers['X-CSRFToken'] = csrfToken;
-            }
-        });
-    </script>
-    <script>
-        $(window).scroll(function() {
-            if ($(this).scrollTop() > 50) {
-                $('.navbar-custom').css({
-                    'background': 'rgba(255, 255, 255, 0.98)',
-                    'box-shadow': '0 4px 20px rgba(0,0,0,0.15)'
-                });
-            } else {
-                $('.navbar-custom').css({
-                    'background': 'rgba(255, 255, 255, 0.95)',
-                    'box-shadow': '0 2px 15px rgba(0,0,0,0.1)'
-                });
-            }
-        });
-    </script>
-    {% block extra_js %}
-        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-        <script>
-            AOS.init({
-                duration: 1200,
-                once: true
-            });
-        </script>
-    {% endblock %}
-    <script>
-        document.body.addEventListener('htmx:configRequest', (event) => {
-            event.detail.headers['X-CSRFToken'] = document.getElementById('csrf-token').value;
-        });
-    </script>
+    });
+</script>
+
+{% block extra_js %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+<script>
+  // CSRF global
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+  });
+
+  // Spinner global
+  document.body.addEventListener('htmx:beforeRequest', () => {
+    const spinner = document.getElementById('global-spinner');
+    if (spinner) spinner.style.display = 'block';
+  });
+
+  document.body.addEventListener('htmx:afterRequest', () => {
+    const spinner = document.getElementById('global-spinner');
+    if (spinner) spinner.style.display = 'none';
+  });
+
+  // Mise à jour du compteur navbar après ajout
+  document.body.addEventListener('htmx:afterRequest', (e) => {
+    if (e.detail.xhr.response === '' && e.detail.pathInfo.requestPath.includes('/cart/add/')) {
+      const badge = document.querySelector('.navbar .badge');
+      if (badge) {
+        let count = parseInt(badge.textContent.trim()) || 0;
+        badge.textContent = count + 1;
+      }
+    }
+  });
+</script>
+
+
+
+<script>
+    AOS.init({ duration: 1200, once: true });
+</script>
+<!-- Dans votre base.html -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    htmx.logger = function(elt, event, data) {
+      console.log(event, data);
+    };
+  });
+
+  document.body.addEventListener('htmx:targetError', function(event) {
+    if (event.detail.target === '#cart-items-container') {
+        // On empêche le comportement par défaut (qui est de déclencher une erreur)
+        event.preventDefault();
+        // On peut afficher un message toast
+        showToast('Produit ajouté au panier !');
+        // On met à jour le badge du panier en faisant une requête pour obtenir le nouveau nombre d'articles
+        // Nous pourrions aussi incrémenter le badge sans requête, mais pour être exact, on peut recharger le badge.
+        // Nous allons faire une requête HTMX pour obtenir le badge mis à jour, mais c'est un peu lourd.
+        // Une alternative : la vue peut retourner un en-tête HTTP avec le nouveau nombre d'articles, et on le met à jour.
+        // Modifions la vue pour qu'elle retourne l'en-tête `HX-Trigger` avec un événement qui contient le nouveau total.
+        // Nous allons écouter cet événement pour mettre à jour le badge.
+    }
+});
+</script>
+{% endblock %}
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+</div>
+
+<script>
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show`;
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.getElementById('toast-container').appendChild(toast);
+
+    // Auto-remove après 4s
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// Utilisation dans hx-on
+// hx-on::after-request="showToast('Produit ajouté !', 'success')"
+</script>
+<!-- Script pour activer les toasts Bootstrap -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Activer tous les toasts au chargement
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function (toastEl) {
+      return new bootstrap.Toast(toastEl, {
+        delay: 6000,
+        animation: true
+      });
+    });
+    toastList.forEach(toast => toast.show());
+
+    // Réactiver les nouveaux toasts ajoutés via HTMX (OOB)
+    document.body.addEventListener('htmx:afterSwap', function () {
+      var newToasts = document.querySelectorAll('#toast-container .toast:not(.show)');
+      newToasts.forEach(function (toastEl) {
+        new bootstrap.Toast(toastEl, { delay: 6000 }).show();
+      });
+    });
+  });
+</script>
+<script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+  });
+</script>
 </body>
 </html>
+

@@ -35,34 +35,3 @@
 </div>
 {% endblock %}
 
-
-
-{% comment %} {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Commande Confirmée - Merci !{% endblock %}
-
-{% block content %}
-<div class="container my-5 text-center">
-  <div class="py-5">
-    <i class="fas fa-check-circle text-success" style="font-size: 6rem; margin-bottom: 2rem;"></i>
-    <h1 class="display-4 text-success fw-bold">Paiement réussi !</h1>
-    <p class="lead mt-4">Votre commande <strong>#{{ order.id }}</strong> a été confirmée.</p>
-    <p class="text-muted">Un email de confirmation vous a été envoyé.</p>
-
-    <div class="mt-5 p-4 bg-light rounded">
-      <p><strong>Total payé :</strong> {{ order.total_amount|floatformat:2 }} €</p>
-      <p><strong>Livraison à :</strong> {{ order.full_name }} – {{ order.address_line_1 }}{% if order.address_line_2 %}, {{ order.address_line_2 }}{% endif %}, {{ order.postal_code }} {{ order.city }}</p>
-    </div>
-
-    <div class="mt-5">
-      <a href="{% url 'marketplace:home' %}" class="btn btn-success btn-lg rounded-pill px-5">
-        <i class="fas fa-home mr-2"></i> Retour à l'accueil
-      </a>
-      <a href="{% url 'marketplace:product_list' %}" class="btn btn-outline-success btn-lg rounded-pill px-5 ml-3">
-        Continuer mes achats
-      </a>
-    </div>
-  </div>
-</div>
-{% endblock %} {% endcomment %}

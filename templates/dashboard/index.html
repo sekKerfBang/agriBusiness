@@ -1,4 +1,368 @@
 {% extends 'base.html' %}
+{% load math_filters %}
+{% load static %}
+
+
+
+{% block title %}Dashboard - {{ user.username }} | AgroBusiness{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1B5E20;
+    --secondary: #2E7D32;
+    --accent: #4CAF50;
+    --light-accent: #81C784;
+    --danger: #C62828;
+    --warning: #FF8A65;
+    --dark-bg: #0A0F0C;
+    --glass: rgba(27, 94, 32, 0.35);
+    --glass-hover: rgba(46, 125, 50, 0.45);
+    --text: #FFFFFF;
+    --text-muted: #C8E6C9;
+  }
+
+  body { background: linear-gradient(180deg, var(--dark-bg) 0%, #000 100%); color: var(--text); }
+
+  .dashboard-header {
+    background:  url('{% static "marketplace/images/dashboard-bg.jpg" %}') center/cover no-repeat;
+    padding: 7rem 0 6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+
+  .dashboard-header::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(92, 89, 89, 0.5);
+  }
+
+  .dashboard-title {
+    font-size: 4.5rem; font-weight: 900; color: white; margin-bottom: 1rem; position: relative; z-index: 2;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+  }
+
+  .dashboard-subtitle {
+    font-size: 1.6rem; color: var(--light ); font-weight: 500; opacity: 0.95; position: relative; z-index: 2;
+  }
+
+  .user-badge {
+    background: var(--glass); border: 2px solid var(--accent); border-radius: 60px; padding: 1rem 2.5rem;
+    color: white; margin-top: 2.5rem; display: inline-flex; align-items: center; gap: 1.2rem;
+    font-weight: 700; backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); position: relative; z-index: 2;
+  }
+
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; margin: 4rem 0;
+  }
+
+  .stat-card {
+    background: var(--glass); backdrop-filter: blur(20px); border-radius: 28px; padding: 3rem;
+    text-align: center; border: 1px solid rgba(76, 175, 80, 0.3); transition: all 0.5s ease;
+    position: relative; overflow: hidden;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-20px) scale(1.03);
+    border-color: var(--accent);
+    box-shadow: 0 30px 70px rgba(76, 175, 80, 0.4);
+  }
+
+  .stat-icon-wrapper {
+    width: 100px; height: 100px; border-radius: 30px; margin: 0 auto 2rem;
+    display: flex; align-items: center; justify-content: center; font-size: 3.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    box-shadow: 0 15px 35px rgba(76, 175, 80, 0.5);
+  }
+
+  .stat-value {
+    font-size: 4rem; 
+    font-weight: 900;
+    margin: 0.8rem 0;
+    color: var(--white);
+    text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  }
+
+  .stat-label {
+    font-size: 1.2rem; color: var(--white); font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  .stat-trend {
+    margin-top: 1.5rem; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 1rem;
+    display: inline-flex; align-items: center; gap: 0.8rem;
+  }
+
+  .trend-up { background: rgba(8, 223, 19, 0.85); color: #fff; }
+  .trend-down { background: rgba(248, 131, 96, 0.74); color: #e27857ff; }
+
+  .section-wrapper {
+    background: var(--glass); backdrop-filter: blur(20px); border-radius: 28px; padding: 3.5rem;
+    border: 1px solid rgba(76, 175, 80, 0.2); margin-bottom: 3rem; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .section-title {
+    font-size: 2.6rem; font-weight: 800; color: var(--text); margin-bottom: 3rem;
+    display: flex; align-items: center; gap: 1.2rem; padding-bottom: 1.2rem;
+    border-bottom: 4px solid var(--accent);
+  }
+
+  .table-dashboard {
+    background: rgba(0,0,0,0.3); border-radius: 20px; overflow: hidden;
+  }
+
+  .table-dashboard th {
+    background: var(--primary); color: white; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  }
+
+  .table-dashboard tbody tr:hover {
+    background: rgba(76, 175, 80, 0.2);
+  }
+
+  .status-badge {
+    padding: 0.7rem 1.4rem; border-radius: 50px; font-weight: 700; font-size: 0.9rem;
+    text-transform: uppercase; letter-spacing: 1px; backdrop-filter: blur(8px);
+  }
+
+  .status-pending { background: rgba(255, 193, 7, 0.3); color: #FFD740; border: 1px solid rgba(255, 193, 7, 0.5); }
+  .status-delivered { background: rgba(76, 175, 80, 0.4); color: #A5D6A7; border: 1px solid rgba(76, 175, 80, 0.6); }
+  .status-shipped { background: rgba(33, 150, 243, 0.3); color: #90CAF9; border: 1px solid rgba(33, 150, 243, 0.5); }
+  .status-cancelled { background: rgba(198, 40, 40, 0.3); color: #EF9A9A; border: 1px solid rgba(198, 40, 40, 0.5); }
+
+  .action-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; margin: 5rem 0;
+  }
+
+  .btn-dashboard {
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    border: none; border-radius: 28px; padding: 3rem; font-size: 1.5rem; font-weight: 700;
+    color: white; display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+    transition: all 0.5s ease; box-shadow: 0 15px 40px rgba(76, 175, 80, 0.5); text-decoration: none;
+  }
+
+  .btn-dashboard i { font-size: 4rem; }
+  .btn-dashboard:hover {
+    transform: translateY(-12px) scale(1.05);
+    box-shadow: 0 30px 70px rgba(76, 175, 80, 0.7);
+  }
+
+  .empty-state {
+    text-align: center; padding: 5rem 2rem; color: var(--text-muted);
+  }
+
+  .empty-state i { font-size: 6rem; opacity: 0.3; margin-bottom: 2rem; }
+
+  @media (max-width: 992px) {
+    .dashboard-title { font-size: 3.5rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 576px) {
+    .dashboard-title { font-size: 2.8rem; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .action-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+  <div class="container text-center py-5">
+    <div class="alert alert-danger">{{ error|safe }}</div>
+  </div>
+{% else %}
+  <div class="dashboard-header">
+    <div class="container position-relative">
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-subtitle">Suivez votre activité en temps réel</p>
+      <div class="user-badge">
+        <i class="fas fa-user-shield"></i>
+        <span>{{ user.get_full_name|default:user.username }} • Producteur</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Statistiques -->
+    <div class="stats-grid" data-aos="fade-up">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><i class="fas fa-seedling"></i></div>
+        <div class="stat-value">{{ stats.total_products }}</div>
+        <div class="stat-label">Produits en catalogue</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><i class="fas fa-check-double"></i></div>
+        <div class="stat-value">{{ stats.active_products }}</div>
+        <div class="stat-label">Produits actifs</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><i class="fas fa-shopping-cart"></i></div>
+        <div class="stat-value">{{ stats.total_orders }}</div>
+        <div class="stat-label">Commandes totales</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><i class="fas fa-euro-sign"></i></div>
+        <div class="stat-value">{{ stats.revenue|floatformat:2 }}</div>
+        <div class="stat-label">Chiffre d'affaires</div>
+        <div class="stat-trend {% if stats.revenue_trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+          <i class="fas fa-arrow-{% if stats.revenue_trend > 0 %}up{% else %}down{% endif %}"></i>
+          {{ stats.revenue_trend|abs }}% ce mois
+        </div>
+      </div>
+
+      <div class="stat-card {% if stats.pending_orders > 0 %}alert-card{% endif %}">
+        <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
+        <div class="stat-value">{{ stats.pending_orders }}</div>
+        <div class="stat-label">Commandes en attente</div>
+      </div>
+
+      <div class="stat-card {% if stats.low_stock > 0 %}alert-card{% endif %}">
+        <div class="stat-icon-wrapper"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-value">{{ stats.low_stock }}</div>
+        <div class="stat-label">Stocks faibles</div>
+      </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="row">
+      <!-- Alertes stock -->
+      {% if stock_alerts %}
+      <div class="col-lg-6">
+        <div class="section-wrapper" data-aos="fade-right">
+          <h2 class="section-title"><i class="fas fa-exclamation-triangle"></i> Stocks critiques</h2>
+          <div class="table-responsive">
+            <table class="table table-dashboard text-white">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Stock</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for product in stock_alerts %}
+                <tr>
+                  <td><strong>{{ product.name }}</strong></td>
+                  <td>
+                    <span class="badge {% if product.stock == 0 %}bg-danger{% else %}bg-warning{% endif %} px-3 py-2">
+                      {{ product.stock }} unité{{ product.stock|pluralize }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{% url 'dashboard:edit_product' product.id %}" class="btn btn-sm btn-outline-light">
+                      Gérer
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center py-5">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <p class="mt-3">Aucun stock critique</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Commandes récentes -->
+      <div class="col-lg-6">
+        <div class="section-wrapper" data-aos="fade-left">
+          <h2 class="section-title"><i class="fas fa-receipt"></i> Commandes récentes</h2>
+          <div class="table-responsive">
+            <table class="table table-dashboard text-white">
+              <thead>
+                <tr>
+                  <th>Commande</th>
+                  <th>Date</th>
+                  <th>Client</th>
+                  <th>Montant</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                  <td><strong>#{{ order.order_number|slice:":10" }}</strong></td>
+                  <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                  <td>{{ order.client.get_full_name|default:order.client.username }}</td>
+                  <td><strong>{{ order.total_amount|floatformat:2 }} fg</strong></td>
+                  <td>
+                    <span class="status-badge 
+                      {% if order.status == 'PENDING' %}status-pending
+                      {% elif order.status == 'DELIVERED' %}status-delivered
+                      {% elif order.status == 'SHIPPED' %}status-shipped
+                      {% else %}status-other{% endif %}">
+                      {{ order.get_status_display }}
+                    </span>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Aucune commande récente</p>
+                    <small>Les nouvelles commandes apparaîtront ici</small>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="section-wrapper" data-aos="fade-up">
+      <h2 class="section-title"><i class="fas fa-bolt"></i> Actions rapides</h2>
+      <div class="action-grid">
+        <a href="{% url 'dashboard:products' %}" class="btn-dashboard">
+          <i class="fas fa-seedling"></i>
+          <span>Gérer mes produits</span>
+        </a>
+        <a href="{% url 'dashboard:orders' %}" class="btn-dashboard">
+          <i class="fas fa-clipboard-list"></i>
+          <span>Voir toutes les commandes</span>
+        </a>
+        <a href="{% url 'dashboard:statistics' %}" class="btn-dashboard">
+          <i class="fas fa-chart-line"></i>
+          <span>Analyses détaillées</span>
+        </a>
+        <a href="{% url 'utilisateur:profile_edit' %}" class="btn-dashboard">
+          <i class="fas fa-user-cog"></i>
+          <span>Modifier mon profil</span>
+        </a>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000,
+    easing: 'ease-out-quart',
+    once: true,
+    offset: 100
+  });
+</script>
+{% endblock %}
+
+
+
+
+{% comment %} {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Dashboard Pro - AgriBusiness{% endblock %}
@@ -485,950 +849,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>
-    AOS.init({
-      duration: 800,
-      easing: 'ease-out-cubic',
-      once: true
-    });
-  </script>
-{% endblock %}
-
-{% comment %} {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Dashboard Pro - AgriBusiness{% endblock %}
-
-{% block extra_css %}
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #1B5E20;
-      --secondary: #2E7D32;
-      --accent: #4CAF50;
-      --light-accent: #81C784;
-      --danger: #C62828;
-      --warning: #FF8A65;
-      --dark-bg: #0D1B0A;
-      --glass: rgba(27, 94, 32, 0.3);
-      --glass-hover: rgba(46, 125, 50, 0.4);
-      --text: #FFFFFF;
-      --text-muted: #C8E6C9;
-    }
-
-    body {
-      background: linear-gradient(180deg, var(--dark-bg) 0%, #000 100%);
-      color: var(--text);
-    }
-
-    .dashboard-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 70%), 
-                  url('{% static "marketplace/images/dashboard-bg.jpg" %}') center/cover no-repeat;
-      margin: -2rem -15px 4rem;
-      padding: 6rem 0 5rem;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 15px 50px rgba(0,0,0,0.6);
-    }
-
-    .dashboard-header::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4);
-    }
-
-    .dashboard-title {
-      font-size: 4.2rem;
-      font-weight: 900;
-      margin-bottom: 0.8rem;
-      color: white;
-      position: relative;
-      z-index: 1;
-    }
-
-    .dashboard-subtitle {
-      font-size: 1.5rem;
-      color: var(--light-accent);
-      font-weight: 500;
-      opacity: 0.95;
-      position: relative;
-      z-index: 1;
-    }
-
-    .user-badge {
-      background: var(--glass);
-      border: 2px solid var(--accent);
-      border-radius: 50px;
-      padding: 0.9rem 2.2rem;
-      color: white;
-      margin-top: 2rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 1rem;
-      font-weight: 700;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-    }
-
-    .stat-card {
-      background: var(--glass);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 2.5rem;
-      text-align: center;
-      border: 1px solid rgba(76, 175, 80, 0.3);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), transparent);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .stat-card:hover::before { opacity: 1; }
-
-    .stat-card:hover {
-      transform: translateY(-15px) scale(1.02);
-      border-color: var(--accent);
-      box-shadow: 0 25px 60px rgba(76, 175, 80, 0.3);
-    }
-
-    .stat-card.alert-card {
-      border-color: rgba(198, 40, 40, 0.5);
-    }
-
-    .stat-card.alert-card:hover {
-      box-shadow: 0 25px 60px rgba(198, 40, 40, 0.3);
-    }
-
-    .stat-icon-wrapper {
-      width: 90px;
-      height: 90px;
-      border-radius: 25px;
-      margin: 0 auto 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      background: linear-gradient(135deg, var(--accent), var(--secondary));
-      box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
-    }
-
-    .stat-card.alert-card .stat-icon-wrapper {
-      background: linear-gradient(135deg, var(--danger), #E53935);
-      box-shadow: 0 10px 25px rgba(198, 40, 40, 0.4);
-    }
-
-    .stat-value {
-      font-size: 3.5rem;
-      font-weight: 900;
-      margin: 0.5rem 0;
-      text-shadow: 0 3px 8px rgba(0,0,0,0.5);
-    }
-
-    .stat-label {
-      font-size: 1.1rem;
-      color: white;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    .stat-trend {
-      margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      border-radius: 30px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: rgba(255,255,255,0.1);
-    }
-
-    .trend-up { color: #81C784; }
-    .trend-down { color: #FF8A65; }
-
-    .section-wrapper {
-      background: var(--glass);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 3rem;
-      border: 1px solid rgba(76, 175, 80, 0.2);
-      margin-bottom: 2rem;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-    }
-
-    .section-title {
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 2.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 4px solid var(--accent);
-    }
-
-    .section-title i {
-      color: var(--accent);
-      font-size: 2.8rem;
-    }
-
-    .table-dashboard {
-      background: rgba(0,0,0,0.2);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 0;
-    }
-
-    .table-dashboard th {
-      background: var(--primary);
-      color: var(--text);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 1.3rem 1rem;
-    }
-
-    .table-dashboard td {
-      padding: 1.3rem 1rem;
-      vertical-align: middle;
-      border-color: rgba(255,255,255,0.1);
-    }
-
-    .table-dashboard tbody tr:hover {
-      background: rgba(76, 175, 80, 0.15);
-    }
-
-    .status-badge {
-      padding: 0.7rem 1.4rem;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    .action-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin: 4rem 0;
-    }
-
-    .btn-dashboard {
-      background: linear-gradient(135deg, var(--accent), var(--secondary));
-      border: none;
-      border-radius: 20px;
-      padding: 2rem;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      transition: all 0.4s ease;
-      box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
-      text-decoration: none;
-    }
-
-    .btn-dashboard i {
-      font-size: 3rem;
-      color: white;
-    }
-
-    .btn-dashboard:hover {
-      transform: translateY(-8px) scale(1.05);
-      box-shadow: 0 20px 50px rgba(76, 175, 80, 0.6);
-      color: white;
-    }
-
-    @media (max-width: 992px) {
-      .dashboard-title { font-size: 3.2rem; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 576px) {
-      .dashboard-title { font-size: 2.6rem; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .action-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-{% endblock %}
-
-{% block content %}
-  {% if not user.is_authenticated %}
-    <div class="container text-center py-5">
-      <h2>Accès restreint</h2>
-      <p>Vous devez être connecté en tant que producteur pour accéder au dashboard.</p>
-      <a href="{% url 'utilisateur:login' %}" class="btn btn-success btn-lg">Se connecter</a>
-    </div>
-  {% else %}
-  <div class="dashboard-header">
-    <div class="container text-center">
-      <h1 class="dashboard-title">Dashboard</h1>
-      <p class="dashboard-subtitle">Maîtrisez votre activité agricole en un coup d'œil</p>
-      <div class="user-badge">
-        <i class="fas fa-crown"></i>
-        <span>{{ user.username }} • Producteur certifié</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- Statistiques principales -->
-    <div class="stats-grid" data-aos="fade-up">
-      <div class="stat-card">
-        <div class="stat-icon-wrapper"><i class="fas fa-seedling"></i></div>
-        <div class="stat-value">{{ stats.total_products }}</div>
-        <div class="stat-label">Produits en catalogue</div>
-        <div class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> +12% ce mois</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper"><i class="fas fa-check-double"></i></div>
-        <div class="stat-value">{{ stats.active_products }}</div>
-        <div class="stat-label">Produits actifs</div>
-        <div class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> +8% cette semaine</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper"><i class="fas fa-shopping-cart"></i></div>
-        <div class="stat-value">{{ stats.total_orders }}</div>
-        <div class="stat-label">Commandes reçues</div>
-        <div class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> +15% ce mois</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper"><i class="fas fa-euro-sign"></i></div>
-        <div class="stat-value">{{ stats.revenue|floatformat:2 }}</div>
-        <div class="stat-label">Chiffre d'affaires</div>
-        <div class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> +28% ce mois</div>
-      </div>
-
-      <div class="stat-card alert-card">
-        <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
-        <div class="stat-value">{{ stats.pending_orders }}</div>
-        <div class="stat-label">Commandes en attente</div>
-        <div class="stat-trend"><i class="fas fa-exclamation"></i> À traiter rapidement</div>
-      </div>
-
-      <div class="stat-card alert-card">
-        <div class="stat-icon-wrapper"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="stat-value">{{ stats.low_stock }}</div>
-        <div class="stat-label">Alertes stock faible</div>
-        <div class="stat-trend trend-down"><i class="fas fa-arrow-down"></i> Action requise</div>
-      </div>
-    </div>
-
-    <!-- Sections -->
-    <div class="row">
-      {% if stock_alerts %}
-      <div class="col-lg-6">
-        <div class="section-wrapper" data-aos="fade-right">
-          <h2 class="section-title"><i class="fas fa-exclamation-triangle"></i> Stocks critiques</h2>
-          <div class="table-responsive">
-            <table class="table table-dashboard">
-              <thead>
-                <tr><th>Produit</th><th>Stock restant</th><th>Action</th></tr>
-              </thead>
-              <tbody>
-                {% for product in stock_alerts %}
-                <tr>
-                  <td><strong>{{ product.name }}</strong></td>
-                  <td><span class="badge badge-danger" style="font-size: 1rem; padding: 0.6rem 1rem;">{{ product.stock }} unités</span></td>
-                  <td><a href="#" class="btn btn-sm btn-outline-light">Réapprovisionner</a></td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
-      <div class="col-lg-6">
-        <div class="section-wrapper" data-aos="fade-left">
-          <h2 class="section-title"><i class="fas fa-receipt"></i> Commandes récentes</h2>
-          <div class="table-responsive">
-            <table class="table table-dashboard">
-              <thead>
-                <tr><th>Commande</th><th>Date</th><th>Client</th><th>Montant</th><th>Statut</th></tr>
-              </thead>
-              <tbody>
-                {% for order in recent_orders %}
-                <tr>
-                  <td><strong>#{{ order.order_number|slice:":8" }}</strong></td>
-                  <td>{{ order.created_at|date:"d/m/y" }}</td>
-                  <td>{{ order.client.username }}</td>
-                  <td><strong>{{ order.total_amount|floatformat:2 }} €</strong></td>
-                  <td>
-                    <span class="status-badge {% if order.status == 'PENDING' %}bg-warning
-                                               {% elif order.status == 'DELIVERED' %}bg-success
-                                               {% elif order.status == 'SHIPPED' %}bg-info
-                                               {% else %}bg-secondary{% endif %} text-white">
-                      {{ order.get_status_display }}
-                    </span>
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="5" class="text-center py-5">
-                    <i class="fas fa-inbox" style="font-size: 4rem; opacity: 0.3;"></i>
-                    <p class="mt-3">Aucune commande récente</p>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions rapides -->
-    <div class="section-wrapper" data-aos="fade-up">
-      <h2 class="section-title"><i class="fas fa-bolt"></i> Actions rapides</h2>
-      <div class="action-grid">
-        <a href="{% url 'dashboard:products' %}" class="btn-dashboard">
-          <i class="fas fa-seedling"></i>
-          <span>Gérer mes produits</span>
-        </a>
-        <a href="{% url 'dashboard:orders' %}" class="btn-dashboard">
-          <i class="fas fa-clipboard-list"></i>
-          <span>Toutes les commandes</span>
-        </a>
-        <a href="{% url 'dashboard:statistics' %}" class="btn-dashboard">
-          <i class="fas fa-chart-line"></i>
-          <span>Statistiques détaillées</span>
-        </a>
-        <a href="{% url 'utilisateur:profile' %}" class="btn-dashboard">
-          <i class="fas fa-user-cog"></i>
-          <span>Paramètres compte</span>
-        </a>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-{% endblock %}
-
-{% block extra_js %}
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>
-    AOS.init({
-      duration: 800,
-      easing: 'ease-out-cubic',
-      once: true
-    });
-  </script>
-{% endblock %} {% endcomment %}
-
-
-
-{% comment %} {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Dashboard Pro - AgriBusiness{% endblock %}
-
-{% block extra_css %}
-  <!-- AOS pour animations au scroll -->
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <style>
-    /* Palette raffinée */
-    :root {
-      --primary: #1B5E20;
-      --secondary: #2E7D32;
-      --accent: #4CAF50;
-      --light-accent: #81C784;
-      --danger: #C62828;
-      --warning: #FF8A65;
-      --dark-bg: #0D1B0A;
-      --glass: rgba(27, 94, 32, 0.3);
-      --glass-hover: rgba(46, 125, 50, 0.4);
-      --text: #FFFFFF;
-      --text-muted: #C8E6C9;
-    }
-
-    body {
-      background: linear-gradient(180deg, var(--dark-bg) 0%, #000 100%);
-      color: var(--text);
-    }
-
-    /* En-tête premium */
-    .dashboard-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 70%), 
-                  url('{% static "marketplace/images/dashboard-bg.jpg" %}') center/cover no-repeat;
-      margin: -2rem -15px 4rem;
-      padding: 6rem 0 5rem;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 15px 50px rgba(0,0,0,0.6);
-    }
-
-    .dashboard-header::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4);
-    }
-
-    .dashboard-title {
-      font-size: 4.2rem;
-      font-weight: 900;
-      margin-bottom: 0.8rem;
-      color: white;
-      position: relative;
-      z-index: 1;
-    }
-
-    .dashboard-subtitle {
-      font-size: 1.5rem;
-      color: var(--light-accent);
-      font-weight: 500;
-      opacity: 0.95;
-      position: relative;
-      z-index: 1;
-    }
-
-    .user-badge {
-      background: var(--glass);
-      border: 2px solid var(--accent);
-      border-radius: 50px;
-      padding: 0.9rem 2.2rem;
-      color: white;
-      margin-top: 2rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 1rem;
-      font-weight: 700;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    }
-
-    /* Stats grid premium */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-    }
-
-    .stat-card {
-      background: var(--glass);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 2.5rem;
-      text-align: center;
-      border: 1px solid rgba(76, 175, 80, 0.3);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), transparent);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .stat-card:hover::before {
-      opacity: 1;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-15px) scale(1.02);
-      border-color: var(--accent);
-      box-shadow: 0 25px 60px rgba(76, 175, 80, 0.3);
-    }
-
-    .stat-card.alert-card {
-      border-color: rgba(198, 40, 40, 0.5);
-    }
-
-    .stat-card.alert-card:hover {
-      box-shadow: 0 25px 60px rgba(198, 40, 40, 0.3);
-    }
-
-    .stat-icon-wrapper {
-      width: 90px;
-      height: 90px;
-      border-radius: 25px;
-      margin: 0 auto 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      background: linear-gradient(135deg, var(--accent), var(--secondary));
-      box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
-    }
-
-    .stat-card.alert-card .stat-icon-wrapper {
-      background: linear-gradient(135deg, var(--danger), #E53935);
-      box-shadow: 0 10px 25px rgba(198, 40, 40, 0.4);
-    }
-
-    .stat-value {
-      font-size: 3.5rem;
-      font-weight: 900;
-      margin: 0.5rem 0;
-      text-shadow: 0 3px 8px rgba(0,0,0,0.5);
-    }
-
-    .stat-label {
-      font-size: 1.1rem;
-      color: white;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    .stat-trend {
-      margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      border-radius: 30px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: rgba(255,255,255,0.1);
-    }
-
-    .trend-up { color: #81C784; }
-    .trend-down { color: #FF8A65; }
-
-    /* Sections */
-    .section-wrapper {
-      background: var(--glass);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 3rem;
-      border: 1px solid rgba(76, 175, 80, 0.2);
-      margin-bottom: 2rem;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-    }
-
-    .section-title {
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 2.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 4px solid var(--accent);
-    }
-
-    .section-title i {
-      color: var(--accent);
-      font-size: 2.8rem;
-    }
-
-    /* Tables */
-    .table-dashboard {
-      background: rgba(0,0,0,0.2);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 0;
-    }
-
-    .table-dashboard th {
-      background: var(--primary);
-      color: var(--text);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 1.3rem 1rem;
-    }
-
-    .table-dashboard td {
-      padding: 1.3rem 1rem;
-      vertical-align: middle;
-      border-color: rgba(255,255,255,0.1);
-    }
-
-    .table-dashboard tbody tr:hover {
-      background: rgba(76, 175, 80, 0.15);
-    }
-
-    .status-badge {
-      padding: 0.7rem 1.4rem;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    /* Boutons actions */
-    .action-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin: 4rem 0;
-    }
-
-    .btn-dashboard {
-      background: linear-gradient(135deg, var(--accent), var(--secondary));
-      border: none;
-      border-radius: 20px;
-      padding: 2rem;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      transition: all 0.4s ease;
-      box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
-    }
-
-    .btn-dashboard i {
-      font-size: 3rem;
-      color: white;
-    }
-
-    .btn-dashboard:hover {
-      transform: translateY(-8px) scale(1.05);
-      box-shadow: 0 20px 50px rgba(76, 175, 80, 0.6);
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-      .dashboard-title { font-size: 3.2rem; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 576px) {
-      .dashboard-title { font-size: 2.6rem; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .action-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-{% endblock %}
-
-{% block content %}
-  <!-- En-tête premium -->
-  <div class="dashboard-header">
-    <div class="container text-center">
-      <h1 class="dashboard-title">Dashboard</h1>
-      <p class="dashboard-subtitle">Maîtrisez votre activité agricole en un coup d'œil</p>
-      <div class="user-badge">
-        <i class="fas fa-crown"></i>
-        <span>{{ user.username }} • Producteur certifié</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- Statistiques principales -->
-    <div class="stats-grid" data-aos="fade-up">
-      <div class="stat-card">
-        <div class="stat-icon-wrapper">
-          <i class="fas fa-seedling"></i>
-        </div>
-        <div class="stat-value">{{ stats.total_products }}</div>
-        <div class="stat-label">Produits en catalogue</div>
-        <div class="stat-trend trend-up">
-          <i class="fas fa-arrow-up"></i> +12% ce mois
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper">
-          <i class="fas fa-check-double"></i>
-        </div>
-        <div class="stat-value">{{ stats.active_products }}</div>
-        <div class="stat-label">Produits actifs</div>
-        <div class="stat-trend trend-up">
-          <i class="fas fa-arrow-up"></i> +8% cette semaine
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper">
-          <i class="fas fa-shopping-cart"></i>
-        </div>
-        <div class="stat-value">{{ stats.total_orders }}</div>
-        <div class="stat-label">Commandes reçues</div>
-        <div class="stat-trend trend-up">
-          <i class="fas fa-arrow-up"></i> +15% ce mois
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrapper">
-          <i class="fas fa-euro-sign"></i>
-        </div>
-        <div class="stat-value">{{ stats.revenue|floatformat:2 }}</div>
-        <div class="stat-label">Chiffre d'affaires</div>
-        <div class="stat-trend trend-up">
-          <i class="fas fa-arrow-up"></i> +28% ce mois
-        </div>
-      </div>
-
-      <div class="stat-card alert-card">
-        <div class="stat-icon-wrapper">
-          <i class="fas fa-clock"></i>
-        </div>
-        <div class="stat-value">{{ stats.pending_orders }}</div>
-        <div class="stat-label">Commandes en attente</div>
-        <div class="stat-trend">
-          <i class="fas fa-exclamation"></i> À traiter rapidement
-        </div>
-      </div>
-
-      <div class="stat-card alert-card">
-        <div class="stat-icon-wrapper">
-          <i class="fas fa-exclamation-triangle"></i>
-        </div>
-        <div class="stat-value">{{ stats.low_stock }}</div>
-        <div class="stat-label">Alertes stock faible</div>
-        <div class="stat-trend trend-down">
-          <i class="fas fa-arrow-down"></i> Action requise
-        </div>
-      </div>
-    </div>
-
-    <!-- Sections principales -->
-    <div class="row">
-      {% if stock_alerts %}
-      <div class="col-lg-6">
-        <div class="section-wrapper" data-aos="fade-right">
-          <h2 class="section-title">
-            <i class="fas fa-exclamation-triangle"></i>
-            Stocks critiques
-          </h2>
-          <div class="table-responsive">
-            <table class="table table-dashboard">
-              <thead>
-                <tr>
-                  <th>Produit</th>
-                  <th>Stock restant</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for product in stock_alerts %}
-                <tr>
-                  <td><strong>{{ product.name }}</strong></td>
-                  <td>
-                    <span class="badge badge-danger" style="font-size: 1rem; padding: 0.6rem 1rem;">
-                      {{ product.stock }} unités
-                    </span>
-                  </td>
-                  <td>
-                    <a href="#" class="btn btn-sm btn-dashboard">
-                      <i class="fas fa-truck-loading"></i> Réapprovisionner
-                    </a>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
-      <div class="col-lg-6">
-        <div class="section-wrapper" data-aos="fade-left">
-          <h2 class="section-title">
-            <i class="fas fa-receipt"></i>
-            Commandes récentes
-          </h2>
-          <div class="table-responsive">
-            <table class="table table-dashboard">
-              <thead>
-                <tr>
-                  <th>Commande</th>
-                  <th>Date</th>
-                  <th>Client</th>
-                  <th>Montant</th>
-                  <th>Statut</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for order in recent_orders %}
-                <tr>
-                  <td><strong>#{{ order.order_number|slice:":8" }}</strong></td>
-                  <td>{{ order.created_at|date:"d/m/y" }}</td>
-                  <td>{{ order.client.username }}</td>
-                  <td><strong>{{ order.total_amount|floatformat:2 }} €</strong></td>
-                  <td>
-                    <span class="status-badge {% if order.status == 'PENDING' %}badge-warning
-                                               {% elif order.status == 'DELIVERED' %}badge-success
-                                               {% elif order.status == 'SHIPPED' %}badge-info
-                                               {% else %}badge-secondary{% endif %}">
-                      <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                      {{ order.get_status_display }}
-                    </span>
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="5" class="text-center py-5">
-                    <i class="fas fa-inbox" style="font-size: 4rem; opacity: 0.3;"></i>
-                    <p class="mt-3">Aucune commande récente</p>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions rapides -->
-    <div class="section-wrapper" data-aos="fade-up">
-      <h2 class="section-title">
-        <i class="fas fa-bolt"></i>
-        Actions rapides
-      </h2>
-      <div class="action-grid">
-        <a href="{% url 'dashboard:products' %}" class="btn-dashboard">
-          <i class="fas fa-plus-circle"></i>
-          <span>Gérer mes produits</span>
-        </a>
-        <a href="{% url 'dashboard:orders' %}" class="btn-dashboard">
-          <i class="fas fa-clipboard-list"></i>
-          <span>Toutes les commandes</span>
-        </a>
-        <a href="{% url 'dashboard:statistics' %}" class="btn-dashboard">
-          <i class="fas fa-chart-line"></i>
-          <span>Statistiques détaillées</span>
-        </a>
-        <a href="{% url 'utilisateur:profile' %}" class="btn-dashboard">
-          <i class="fas fa-user-cog"></i>
-          <span>Paramètres compte</span>
-        </a>
-      </div>
-    </div>
-  </div>
-{% endblock %}
-
-{% block extra_js %}
-  <!-- AOS animations -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
     AOS.init({
