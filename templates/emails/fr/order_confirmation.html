@@ -1,0 +1,52 @@
+<!-- templates/emails/fr/order_confirmation.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; background-color: #f9f9f9; }
+        .footer { background-color: #ecf0f1; padding: 20px; text-align: center; font-size: 12px; }
+        .order-details { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .product-row { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .total { font-weight: bold; font-size: 18px; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Commande Confirmée</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour {{ order.client.get_full_name }},</p>
+            <p>Votre commande <strong>#{{ order.order_number }}</strong> a été confirmée avec succès.</p>
+            
+            <div class="order-details">
+                <h3>Détails de la commande</h3>
+                
+                {% for item in items %}
+                <div class="product-row">
+                    <strong>{{ item.product.name }}</strong><br>
+                    Quantité: {{ item.quantity }} × {{ item.unit_price }} €
+                </div>
+                {% endfor %}
+                
+                <div class="total">
+                    Total: {{ total_amount }} €
+                </div>
+            </div>
+            
+            <p>Merci pour votre confiance !</p>
+            <p>L'équipe AgriBusiness</p>
+        </div>
+        
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+            <p>© {{ current_year }} AgriBusiness - Tous droits réservés</p>
+        </div>
+    </div>
+</body>
+</html>

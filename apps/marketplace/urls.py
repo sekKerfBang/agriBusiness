@@ -21,5 +21,10 @@ urlpatterns = [
     # Payment endpoint
     path('checkout/', views.CheckoutView.as_view(), name='checkout'),
     path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/store_checkout_data/', views.store_checkout_data, name='store_checkout_data'),
+    path('stripe/webhook/', views.stripe_webhook, name='stripe_webhook'),
+    # path('orders/', views.OrderHistoryView.as_view(), name='order_history'),
+    # path('orders/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
+
     # path('payment-success/', views.PaymentSuccessView.as_view(), name='payment_success'),    
 ]
